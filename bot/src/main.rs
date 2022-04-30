@@ -2,9 +2,11 @@ mod podmanager;
 
 use std::env;
 use std::sync::Mutex;
+use std::cmp::min;
+use std::fmt::Write;
 
 use lazy_static::lazy_static;
-use podmanager::PodManager;
+use podmanager::{PodManager, ExecResult};
 use regex::{Regex, RegexBuilder};
 use serenity::async_trait;
 use serenity::model::channel::Message;
@@ -29,6 +31,71 @@ lazy_static! {
 struct Handler {
     id: Mutex<Option<UserId>>,
     podman: Mutex<podmanager::PodManager>,
+}
+
+fn zws_encode(text: String) -> String {
+    text.replace("`", "`\u{200B}")
+}
+
+fn format_output(output: ExecResult) -> String {
+    const MAXLEN: isize = 1800; // 200 extra chars for trailing stuff
+    const ERRMAXLEN: isize = 1500; // Some space for non-error output
+
+    let mut add_ws = false;
+    let mut formatted = "".to_string();
+    if !output.status.success() {
+        add_ws = true;
+        if let Some(code) = output.status.code() {
+            formatted += "Error: Exited with exit code";
+            let _ = write!(formatted, " {}", code);
+        } else {
+            formatted += "Error: Exited due to signal";
+        }
+    }
+
+    if let Some(stderr) = output.stderr {
+        if add_ws {
+            formatted += "\n\n";
+        }
+
+        let encoded = zws_encode(stderr);
+        formatted += "STDERR:\n```ansi\n";
+
+        let space = min(MAXLEN - formatted.len() as isize, ERRMAXLEN);
+        if space < 0 {
+            formatted += "(truncated...)";
+        } else if encoded.len() > space as usize {
+            formatted += &encoded[0..space as usize];
+            formatted += " (truncated...)";
+        } else {
+            formatted += &encoded;
+        }
+
+        formatted += "\n```\n";
+    }
+
+    if let Some(stdout) = output.stdout {
+        if add_ws {
+            formatted += "\n\n";
+        }
+
+        let encoded = zws_encode(stdout);
+        formatted += "Result:\n```\n";
+
+        let space = MAXLEN - formatted.len() as isize;
+        if space < 0 {
+            formatted += "(truncated...)";
+        } else if encoded.len() > space as usize {
+            formatted += &encoded[0..space as usize];
+            formatted += " (truncated...)";
+        } else {
+            formatted += &encoded;
+        }
+
+        formatted += "\n```";
+    }
+
+    formatted
 }
 
 #[async_trait]
@@ -61,11 +128,9 @@ impl EventHandler for Handler {
             Ok(pod) => pod,
             Err(err) => {
                 eprintln!("Couldn't get pod: {}", err);
-                let res = msg.channel_id.say(&ctx.http, format!("Error: {}", err)).await;
-                if let Err(err) = res {
-                    eprintln!("Error sending message: {:?}", err);
+                if let Err(err) = msg.channel_id.say(&ctx.http, format!("Error: {}", err)).await {
+                    eprintln!("Error sending response: {}", err);
                 }
-
                 return;
             }
         };
@@ -74,18 +139,15 @@ impl EventHandler for Handler {
             Ok(output) => output,
             Err(err) => {
                 eprintln!("Couldn't execute code: {}", err);
-                let res = msg.channel_id.say(&ctx.http, format!("Error: {}", err)).await;
-                if let Err(err) = res {
-                    eprintln!("Error sending message: {:?}", err);
+                if let Err(err) = msg.channel_id.say(&ctx.http, format!("Error: {}", err)).await {
+                    eprintln!("Error sending response: {}", err);
                 }
-
                 return;
             }
         };
 
-        let res = msg.channel_id.say(&ctx.http, format!("Result: {}", output)).await;
-        if let Err(err) = res {
-            eprintln!("Error sending message: {:?}", err);
+        if let Err(err) = msg.reply(&ctx.http, format_output(output)).await {
+            eprintln!("Error sending response: {}", err);
         }
     }
 

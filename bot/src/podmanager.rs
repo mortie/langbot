@@ -1,8 +1,14 @@
-use std::process::{Command, Stdio};
+use std::process::{Command, Stdio, ExitStatus};
 use std::io::Write;
 
 pub struct Pod {
     id: String,
+}
+
+pub struct ExecResult {
+    pub stdout: Option<String>,
+    pub stderr: Option<String>,
+    pub status: ExitStatus,
 }
 
 impl Pod {
@@ -16,7 +22,7 @@ impl Pod {
             .arg("--network=none")
             .arg(tag)
             .arg("sleep")
-            .arg("10")
+            .arg("3")
             .stderr(Stdio::inherit())
             .output();
         let output = match output {
@@ -51,7 +57,7 @@ impl Pod {
         Ok(Pod { id })
     }
 
-    pub fn execute(&self, language: &str, content: &str) -> Result<String, String> {
+    pub fn execute(&self, language: &str, content: &str) -> Result<ExecResult, String> {
         // echo "$content" | podman exec -i "$id" ./scripts/run.sh "$language"
 
         let child = Command::new("podman")
@@ -95,28 +101,11 @@ impl Pod {
             }
         }
 
-        if !output.status.success() {
-            let exiterr = match output.status.code() {
-                Some(code) => format!("Code {}", code),
-                None => "Exited by signal".into(),
-            };
-
-            if let Some(errmsg) = errmsg {
-                return Err(format!("Running program failed: {}\nSTDERR: {}", exiterr, errmsg));
-            } else {
-                return Err(format!("Running program failed: {}", exiterr));
-            }
-        }
-
-        if errmsg.is_some() && outmsg.is_some() {
-            Ok(format!("STDERR: {}\n\n{}", errmsg.unwrap(), outmsg.unwrap()))
-        } else if let Some(errmsg) = errmsg {
-            Ok(format!("STDERR: {}", errmsg))
-        } else if let Some(outmsg) = outmsg {
-            Ok(format!("{}", outmsg))
-        } else {
-            Ok("(No output)".into())
-        }
+        Ok(ExecResult {
+            stdout: outmsg,
+            stderr: errmsg,
+            status: output.status,
+        })
     }
 }
 
