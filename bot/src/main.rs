@@ -2,16 +2,15 @@ mod podmanager;
 
 use std::env;
 use std::sync::Mutex;
-use std::cmp::min;
-use std::fmt::Write;
 
 use lazy_static::lazy_static;
-use podmanager::{PodManager, ExecResult};
+use podmanager::PodManager;
 use regex::{Regex, RegexBuilder};
 use serenity::async_trait;
 use serenity::model::channel::Message;
 use serenity::model::gateway::Ready;
 use serenity::model::id::UserId;
+use serenity::utils::Color;
 use serenity::prelude::*;
 
 lazy_static! {
@@ -33,69 +32,28 @@ struct Handler {
     podman: Mutex<podmanager::PodManager>,
 }
 
-fn zws_encode(text: String) -> String {
-    text.replace("`", "`\u{200B}")
+fn exit_code_to_desc(code: i32) -> Option<&'static str> {
+    match code {
+        126 => Some("Command not executable"),
+        127 => Some("Command  not found"),
+        129 => Some("SIGHUP"),
+        130 => Some("SIGINT"),
+        131 => Some("SIGQUIT"),
+        132 => Some("SIGILL"),
+        133 => Some("SIGTRAP"),
+        134 => Some("SIGABRT"),
+        135 => Some("SIGBUS"),
+        136 => Some("SIGFPE"),
+        137 => Some("SIGKILL"),
+        139 => Some("SIGSEGV"),
+        141 => Some("SIGPIPE"),
+        143 => Some("SIGTERM"),
+        _ => None,
+    }
 }
 
-fn format_output(output: ExecResult) -> String {
-    const MAXLEN: isize = 1800; // 200 extra chars for trailing stuff
-    const ERRMAXLEN: isize = 1500; // Some space for non-error output
-
-    let mut add_ws = false;
-    let mut formatted = "".to_string();
-    if !output.status.success() {
-        add_ws = true;
-        if let Some(code) = output.status.code() {
-            formatted += "Error: Exited with exit code";
-            let _ = write!(formatted, " {}", code);
-        } else {
-            formatted += "Error: Exited due to signal";
-        }
-    }
-
-    if let Some(stderr) = output.stderr {
-        if add_ws {
-            formatted += "\n\n";
-        }
-
-        let encoded = zws_encode(stderr);
-        formatted += "STDERR:\n```ansi\n";
-
-        let space = min(MAXLEN - formatted.len() as isize, ERRMAXLEN);
-        if space < 0 {
-            formatted += "(truncated...)";
-        } else if encoded.len() > space as usize {
-            formatted += &encoded[0..space as usize];
-            formatted += " (truncated...)";
-        } else {
-            formatted += &encoded;
-        }
-
-        formatted += "\n```\n";
-    }
-
-    if let Some(stdout) = output.stdout {
-        if add_ws {
-            formatted += "\n\n";
-        }
-
-        let encoded = zws_encode(stdout);
-        formatted += "Result:\n```\n";
-
-        let space = MAXLEN - formatted.len() as isize;
-        if space < 0 {
-            formatted += "(truncated...)";
-        } else if encoded.len() > space as usize {
-            formatted += &encoded[0..space as usize];
-            formatted += " (truncated...)";
-        } else {
-            formatted += &encoded;
-        }
-
-        formatted += "\n```";
-    }
-
-    formatted
+fn zws_encode(text: String) -> String {
+    text.replace("`", "`\u{200B}")
 }
 
 #[async_trait]
@@ -123,6 +81,8 @@ impl EventHandler for Handler {
         let language =  caps.get(1).unwrap().as_str().to_lowercase();
         let content = caps.get(2).unwrap().as_str();
 
+        let _typing = msg.channel_id.start_typing(&ctx.http);
+
         let pod = self.podman.lock().unwrap().get_pod();
         let pod = match pod {
             Ok(pod) => pod,
@@ -146,9 +106,44 @@ impl EventHandler for Handler {
             }
         };
 
+        let res = msg.channel_id.send_message(&ctx.http, |m| {
+            m.embed(|e| {
+                if !output.status.success() {
+                    let code = match output.status.code() {
+                        Some(code) => match exit_code_to_desc(code) {
+                            Some(desc) => format!("{} ({})", code, desc),
+                            None => format!("{}", code),
+                        },
+                        None => "Signal".to_string(),
+                    };
+
+                    e.description(format!("Exit Code {}", code));
+                    e.color(Color::DARK_RED);
+                } else {
+                    e.color(Color::DARK_GREEN);
+                }
+
+                if let Some(stdout) = output.stdout {
+                    e.field("STDOUT", format!("```ansi\n{}\n```", zws_encode(stdout)), false);
+                }
+
+                if let Some(stderr) = output.stderr {
+                    e.field("STDERR", format!("```ansi\n{}\n```", zws_encode(stderr)), false);
+                }
+
+                e
+            })
+        }).await;
+        if let Err(err) = res {
+            eprintln!("Error sending response: {}", err);
+            let _ = msg.channel_id.say(&ctx.http, format!("Couldn't send response: {}", err)).await;
+        }
+
+        /*
         if let Err(err) = msg.reply(&ctx.http, format_output(output)).await {
             eprintln!("Error sending response: {}", err);
         }
+        */
     }
 
     // Set a handler to be called on the `ready` event. This is called when a
