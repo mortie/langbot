@@ -121,6 +121,7 @@ impl Pod {
 
 impl Drop for Pod {
     fn drop(&mut self) {
+        // podman container kill "$id"
         // podman container rm "$id"
 
         let output = Command::new("podman")
