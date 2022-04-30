@@ -17,5 +17,5 @@ if ! [ -f "$deploydir/.done" ]; then
 fi
 
 cd "$deploydir"
-exec bash -e run.sh
+exec bash -euo pipefail run.sh
 echo OK!

@@ -7,8 +7,8 @@ sed -i "2 i #include <atomic>" src/runtime.hpp
 
 mkdir build
 cd build
-cmake .. -DCMAKE_INSTALL_PREFIX="$DESTDIR"
+cmake .. -DCMAKE_INSTALL_PREFIX="$DEPLOYDIR"
 make -j8
-make install DESTDIR=
+make install
 
-touch "$DESTDIR/.done"
+touch "$DEPLOYDIR/.done"

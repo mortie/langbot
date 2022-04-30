@@ -1,1 +1,1 @@
-touch "$DESTDIR/.done"
+touch "$DEPLOYDIR/.done"

@@ -3,6 +3,6 @@ cd ante
 git checkout 1df3e650de2347b73b46b142e3abb6b87b015356
 
 cargo build --release
-cp target/release/ante "$DESTDIR"
+cp target/release/ante "$DEPLOYDIR"
 
-touch "$DESTDIR/.done"
+touch "$DEPLOYDIR/.done"

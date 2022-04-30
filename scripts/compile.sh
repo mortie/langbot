@@ -1,5 +1,5 @@
 #!/bin/bash
-set -e
+set -euo pipefail
 
 lang="$1"
 
@@ -39,7 +39,7 @@ if [ -e "$workdir/run.sh" ]; then
 fi
 
 cd "$workdir"
-if ! WORKDIR="$workdir" DESTDIR="$deploydir" bash -ex "$langdir/compile.sh"; then
+if ! WORKDIR="$workdir" DEPLOYDIR="$deploydir" bash -x -euo pipefail "$langdir/compile.sh"; then
 	echo "Failed to compile $lang." >&2
 	exit 1
 fi
