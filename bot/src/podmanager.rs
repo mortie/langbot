@@ -133,6 +133,7 @@ impl Drop for Pod {
             Ok(output) => output,
             Err(err) => {
                 eprintln!("Killing container {} failed: {}", self.id, err);
+                return;
             }
         };
         // We don't really care if the kill command fails; that just means

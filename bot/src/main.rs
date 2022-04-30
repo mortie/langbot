@@ -13,16 +13,16 @@ use serenity::model::id::UserId;
 use serenity::prelude::*;
 
 lazy_static! {
-    static ref INLINE_CODE_RX: Regex = {
-        let pattern = r"^<@\d+>\s+(\w+).*`(.*?)`";
-        Regex::new(pattern).unwrap()
-    };
     static ref MULTILINE_CODE_RX: Regex = {
-        let pattern = r"^<@\d+>\s+(\w+).*```(.*?)```";
+        let pattern = r"^<@\d+>\s+(\w+).*```\w*(.*?)```";
         RegexBuilder::new(pattern)
             .dot_matches_new_line(true)
             .build()
             .unwrap()
+    };
+    static ref INLINE_CODE_RX: Regex = {
+        let pattern = r"^<@\d+>\s+(\w+).*`(.*?)`";
+        Regex::new(pattern).unwrap()
     };
 }
 
@@ -45,9 +45,9 @@ impl EventHandler for Handler {
             return;
         }
 
-        let caps = INLINE_CODE_RX
+        let caps = MULTILINE_CODE_RX
             .captures(&msg.content)
-            .or_else(|| MULTILINE_CODE_RX.captures(&msg.content));
+            .or_else(|| INLINE_CODE_RX.captures(&msg.content));
         let caps = match caps {
             Some(caps) => caps,
             None => return,
