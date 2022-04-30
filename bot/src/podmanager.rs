@@ -13,6 +13,7 @@ impl Pod {
         let output = Command::new("podman")
             .arg("container")
             .arg("create")
+            .arg("--network=none")
             .arg(tag)
             .arg("sleep")
             .arg("10")
