@@ -3,11 +3,14 @@ set -e
 
 concurrency=8
 langs='
+	c
+	c++
 	ante
 	cognate
 	cthulhu
 	egel
 	osyris
+	python
 '
 
 count=0
