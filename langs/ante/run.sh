@@ -1,2 +1,2 @@
-#!/bin/sh
-./ante --run "$1"
+cat >input.ante
+exec ./ante --run input.ante

@@ -1,3 +1,2 @@
-#!/bin/sh
-mv "$1" "$1.cog"
-./bin/cognac "$1.cog" -run
+cat > input.cog
+exec ./bin/cognac input.cog -run

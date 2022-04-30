@@ -1,18 +1,19 @@
 #!/bin/bash
 set -e
 
-langs="
+concurrency=8
+langs='
 	ante
 	cognate
 	cthulhu
 	egel
 	osyris
-"
-
-concurrency=4
+'
 
 count=0
 for lang in $langs; do
+	case "$lang" in '#'*) continue;; esac
+
 	echo "=== START: $lang ==="
 	(./scripts/compile.sh "$lang" && echo "=== DONE: $lang ===") &
 	count=$((count + 1))

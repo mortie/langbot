@@ -23,11 +23,20 @@ if ! [ -f "$langdir/compile.sh" ]; then
 	exit 1
 fi
 
+if ! [ -f "$langdir/run.sh" ]; then
+	echo "Missing file: $langdir/run.sh" >&2
+	exit 1
+fi
+
 rm -rf "$deploydir"
 rm -rf "$workdir"
 mkdir -p "$deploydir"
 mkdir -p "$topdir/work"
 cp -r "$langdir" "$workdir"
+
+if [ -e "$workdir/run.sh" ]; then
+	cp "$workdir/run.sh" "$deploydir/run.sh"
+fi
 
 cd "$workdir"
 if ! WORKDIR="$workdir" DESTDIR="$deploydir" bash -ex "$langdir/compile.sh"; then
@@ -35,13 +44,13 @@ if ! WORKDIR="$workdir" DESTDIR="$deploydir" bash -ex "$langdir/compile.sh"; the
 	exit 1
 fi
 
-if ! [ -f "$deploydir/run" ]; then
-	echo "Compile script failed to produce $deploydir/run" >&2
+if ! [ -f "$deploydir/.done" ]; then
+	echo "Compile script failed to produce $deploydir/.done file." >&2
 	exit 1
 fi
 
-if ! [ -f "$deploydir/.done" ]; then
-	echo "Compile script failed to produce $deploydir/.done file." >&2
+if ! [ -f "$deploydir/run.sh" ]; then
+	echo "Compile script failed to produce $deploydir/run.sh file." >&2
 	exit 1
 fi
 
