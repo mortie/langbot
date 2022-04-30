@@ -11,5 +11,4 @@ cmake .. -DCMAKE_INSTALL_PREFIX="$DESTDIR"
 make -j8
 make install DESTDIR=
 
-ln -s bin/egel "$DESTDIR/run"
 touch "$DESTDIR/.done"

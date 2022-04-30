@@ -6,5 +6,4 @@ meson build --prefix "$DESTDIR"
 ninja -C build
 DESTDIR= ninja -C build install
 
-cp "$WORKDIR/run.sh" "$DESTDIR/run"
 touch "$DESTDIR/.done"
