@@ -18,4 +18,3 @@ fi
 
 cd "$deploydir"
 exec bash -euo pipefail run.sh
-echo OK!
