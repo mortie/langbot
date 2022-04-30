@@ -7,7 +7,8 @@
 
 ## Running a language
 
-Run `podman run --rm -i langbot ./scripts/run.sh <language>`. It will run the code from stdin.
+Run `podman run --rm -i langbot ./scripts/run.sh <language>`. It will read source code
+from stdin and execute it.
 
 ## Adding your own language
 
@@ -24,8 +25,8 @@ Run `podman run --rm -i langbot ./scripts/run.sh <language>`. It will run the co
 	* When everything is done, run `touch "$DEPLOYDIR/.done"` as a final sanity check.
 3. Create a file `langs/yourlang/run.sh`.
 	* `run.sh` is copied to the deployment directory (what was `$DEPLOYDIR` in `compile.sh`)
-	* It will be run using the command `bash -euo pipefail run.sh`.
-	* This file is run in the deployment directory. It should read its source code from stdin,
+	* It will be run using the command `bash -euo pipefail run.sh`,
+	  in the deployment directory. It should read its source code from stdin,
 	  and do whatever is necessary to execute that code.
 	* If everything goes okay, exit with exit code 0; if something goes wrong,
 	  exit with a non-zero exit code.
