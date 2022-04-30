@@ -32,6 +32,35 @@ struct Handler {
     podman: Mutex<podmanager::PodManager>,
 }
 
+fn truncate_string(text: String) -> String {
+    const CHLIMIT: usize = 800;
+    const LINELIMIT: usize = 20;
+
+    let mut numlines = 0;
+    let mut output = "".to_string();
+    let mut truncated = false;
+    for line in text.lines() {
+        if output.len() > 0 {
+            output += "\n";
+        }
+
+        output += line;
+        numlines += 1;
+        if numlines >= LINELIMIT || output.len() >= CHLIMIT {
+            truncated = true;
+            break;
+        }
+    }
+
+    if output.len() > CHLIMIT {
+        format!("{} (truncated...)", output.chars().take(CHLIMIT).collect::<String>())
+    } else if truncated {
+        format!("{} (truncated...)", output)
+    } else {
+        output
+    }
+}
+
 fn exit_code_to_desc(code: i32) -> Option<&'static str> {
     match code {
         126 => Some("Command not executable"),
@@ -81,7 +110,13 @@ impl EventHandler for Handler {
         let language =  caps.get(1).unwrap().as_str().to_lowercase();
         let content = caps.get(2).unwrap().as_str();
 
-        let _typing = msg.channel_id.start_typing(&ctx.http);
+        let _typing = match msg.channel_id.start_typing(&ctx.http) {
+            Ok(t) => Some(t),
+            Err(err) => {
+                eprintln!("Failed to send start_typing message: {}", err);
+                None
+            }
+        };
 
         let pod = self.podman.lock().unwrap().get_pod();
         let pod = match pod {
@@ -120,15 +155,16 @@ impl EventHandler for Handler {
                     e.description(format!("Exit Code {}", code));
                     e.color(Color::DARK_RED);
                 } else {
+                    e.description(format!("Exit Code 0 (OK)"));
                     e.color(Color::DARK_GREEN);
                 }
 
                 if let Some(stdout) = output.stdout {
-                    e.field("STDOUT", format!("```ansi\n{}\n```", zws_encode(stdout)), false);
+                    e.field("STDOUT", format!("```ansi\n{}\n```", zws_encode(truncate_string(stdout))), false);
                 }
 
                 if let Some(stderr) = output.stderr {
-                    e.field("STDERR", format!("```ansi\n{}\n```", zws_encode(stderr)), false);
+                    e.field("STDERR", format!("```ansi\n{}\n```", zws_encode(truncate_string(stderr))), false);
                 }
 
                 e
