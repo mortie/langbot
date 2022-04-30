@@ -1,10 +1,10 @@
 # Langbot
 
-## Creating a pod with macOS
+## Creating an image
 
-1. Download podman: `brew install podman`
-2. Set up a virtual machine: `podman machine init --cpus 8 --memory 8096`
-3. Start it up: `podman machine start`
-4. Build the image: `podman build -t langbot .`
-5. Start the container: `podman run --rm -it langbot bash`
-6. Compile language implementations: `./scripts/compile-all.sh`
+1. Install podman
+2. Build an image: `podman build -t langbot .`
+
+## Running a language
+
+Run `podman run --rm -i langbot ./scripts/run.sh <language>`. It will run the code from stdin.

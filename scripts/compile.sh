@@ -44,6 +44,8 @@ if ! WORKDIR="$workdir" DESTDIR="$deploydir" bash -ex "$langdir/compile.sh"; the
 	exit 1
 fi
 
+rm -rf "$workdir"
+
 if ! [ -f "$deploydir/.done" ]; then
 	echo "Compile script failed to produce $deploydir/.done file." >&2
 	exit 1
