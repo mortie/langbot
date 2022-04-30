@@ -1,7 +1,4 @@
-echo '@mangle("printf")
-def print(fmt: str, args: ...): int;
-' > input.ct
-cat >> input.ct
+cat > input.ct
 
 # ctc is kinda noisy. Errors go to stderr,
 # the noise goes to stdout, so redirecting stdout is ok
