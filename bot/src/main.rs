@@ -10,8 +10,8 @@ use serenity::async_trait;
 use serenity::model::channel::Message;
 use serenity::model::gateway::Ready;
 use serenity::model::id::UserId;
-use serenity::utils::Color;
 use serenity::prelude::*;
+use serenity::utils::Color;
 
 lazy_static! {
     static ref MULTILINE_CODE_RX: Regex = {
@@ -53,7 +53,10 @@ fn truncate_string(text: String) -> String {
     }
 
     if output.len() > CHLIMIT {
-        format!("{} (truncated...)", output.chars().take(CHLIMIT).collect::<String>())
+        format!(
+            "{} (truncated...)",
+            output.chars().take(CHLIMIT).collect::<String>()
+        )
     } else if truncated {
         format!("{} (truncated...)", output)
     } else {
@@ -107,7 +110,7 @@ impl EventHandler for Handler {
             None => return,
         };
 
-        let language =  caps.get(1).unwrap().as_str().to_lowercase();
+        let language = caps.get(1).unwrap().as_str().to_lowercase();
         let content = caps.get(2).unwrap().as_str();
 
         let _typing = match msg.channel_id.start_typing(&ctx.http) {
@@ -123,7 +126,11 @@ impl EventHandler for Handler {
             Ok(pod) => pod,
             Err(err) => {
                 eprintln!("Couldn't get pod: {}", err);
-                if let Err(err) = msg.channel_id.say(&ctx.http, format!("Error: {}", err)).await {
+                if let Err(err) = msg
+                    .channel_id
+                    .say(&ctx.http, format!("Error: {}", err))
+                    .await
+                {
                     eprintln!("Error sending response: {}", err);
                 }
                 return;
@@ -134,45 +141,63 @@ impl EventHandler for Handler {
             Ok(output) => output,
             Err(err) => {
                 eprintln!("Couldn't execute code: {}", err);
-                if let Err(err) = msg.channel_id.say(&ctx.http, format!("Error: {}", err)).await {
+                if let Err(err) = msg
+                    .channel_id
+                    .say(&ctx.http, format!("Error: {}", err))
+                    .await
+                {
                     eprintln!("Error sending response: {}", err);
                 }
                 return;
             }
         };
 
-        let res = msg.channel_id.send_message(&ctx.http, |m| {
-            m.embed(|e| {
-                if !output.status.success() {
-                    let code = match output.status.code() {
-                        Some(code) => match exit_code_to_desc(code) {
-                            Some(desc) => format!("{} ({})", code, desc),
-                            None => format!("{}", code),
-                        },
-                        None => "Signal".to_string(),
-                    };
+        let res = msg
+            .channel_id
+            .send_message(&ctx.http, |m| {
+                m.embed(|e| {
+                    if !output.status.success() {
+                        let code = match output.status.code() {
+                            Some(code) => match exit_code_to_desc(code) {
+                                Some(desc) => format!("{} ({})", code, desc),
+                                None => format!("{}", code),
+                            },
+                            None => "Signal".to_string(),
+                        };
 
-                    e.description(format!("Exit Code {}", code));
-                    e.color(Color::DARK_RED);
-                } else {
-                    e.description(format!("Exit Code 0 (OK)"));
-                    e.color(Color::DARK_GREEN);
-                }
+                        e.description(format!("Exit Code {}", code));
+                        e.color(Color::DARK_RED);
+                    } else {
+                        e.description(format!("Exit Code 0 (OK)"));
+                        e.color(Color::DARK_GREEN);
+                    }
 
-                if let Some(stdout) = output.stdout {
-                    e.field("STDOUT", format!("```ansi\n{}\n```", zws_encode(truncate_string(stdout))), false);
-                }
+                    if let Some(stdout) = output.stdout {
+                        e.field(
+                            "STDOUT",
+                            format!("```ansi\n{}\n```", zws_encode(truncate_string(stdout))),
+                            false,
+                        );
+                    }
 
-                if let Some(stderr) = output.stderr {
-                    e.field("STDERR", format!("```ansi\n{}\n```", zws_encode(truncate_string(stderr))), false);
-                }
+                    if let Some(stderr) = output.stderr {
+                        e.field(
+                            "STDERR",
+                            format!("```ansi\n{}\n```", zws_encode(truncate_string(stderr))),
+                            false,
+                        );
+                    }
 
-                e
+                    e
+                })
             })
-        }).await;
+            .await;
         if let Err(err) = res {
             eprintln!("Error sending response: {}", err);
-            let _ = msg.channel_id.say(&ctx.http, format!("Couldn't send response: {}", err)).await;
+            let _ = msg
+                .channel_id
+                .say(&ctx.http, format!("Couldn't send response: {}", err))
+                .await;
         }
 
         /*

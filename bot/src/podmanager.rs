@@ -1,5 +1,5 @@
-use std::process::{Command, Stdio, ExitStatus};
 use std::io::Write;
+use std::process::{Command, ExitStatus, Stdio};
 
 pub struct Pod {
     id: String,
@@ -66,7 +66,9 @@ impl Pod {
             .arg(&self.id)
             .arg("./scripts/run.sh")
             .arg(language)
-            .stdin(Stdio::piped()).stdout(Stdio::piped()).stderr(Stdio::piped())
+            .stdin(Stdio::piped())
+            .stdout(Stdio::piped())
+            .stderr(Stdio::piped())
             .spawn();
         let mut child = match child {
             Ok(child) => child,
