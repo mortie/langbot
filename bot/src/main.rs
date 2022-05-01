@@ -1,12 +1,12 @@
 mod podmanager;
 
-use std::collections::HashMap;
 use std::env;
 use std::sync::Mutex;
 
 use lazy_static::lazy_static;
 use podmanager::{ExecResult, PodManager};
 use regex::{Regex, RegexBuilder};
+use lru::LruCache;
 use serenity::async_trait;
 use serenity::builder::CreateEmbed;
 use serenity::model::channel::Message;
@@ -89,7 +89,7 @@ fn zws_encode(text: String) -> String {
 struct Handler {
     id: Mutex<Option<UserId>>,
     podman: Mutex<podmanager::PodManager>,
-    responses: Mutex<HashMap<(ChannelId, MessageId), (ChannelId, MessageId)>>,
+    responses: Mutex<LruCache<(ChannelId, MessageId), (ChannelId, MessageId)>>,
 }
 
 fn create_embed_from_result(output: ExecResult, embed: &mut CreateEmbed) {
@@ -268,7 +268,7 @@ impl EventHandler for Handler {
                 self.responses
                     .lock()
                     .unwrap()
-                    .insert((msg.channel_id, msg.id), (reply.channel_id, reply.id));
+                    .put((msg.channel_id, msg.id), (reply.channel_id, reply.id));
             }
             Err(err) => {
                 eprintln!("Couldn't send message: {}", err);
@@ -299,7 +299,7 @@ async fn main() {
     let handler = Handler {
         id: Mutex::new(None),
         podman: Mutex::new(PodManager::new("langbot".into())),
-        responses: Mutex::new(HashMap::new()),
+        responses: Mutex::new(LruCache::new(1024)),
     };
 
     let mut client = Client::builder(&token, intents)
