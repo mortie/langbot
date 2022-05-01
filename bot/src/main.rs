@@ -1,8 +1,8 @@
 mod podmanager;
 
 use std::env;
-use std::sync::{Arc, Mutex};
 use std::fs;
+use std::sync::{Arc, Mutex};
 
 use lazy_static::lazy_static;
 use lru::LruCache;
@@ -13,8 +13,8 @@ use serenity::builder::CreateEmbed;
 use serenity::model::channel::Message;
 use serenity::model::event::MessageUpdateEvent;
 use serenity::model::gateway::Ready;
-use serenity::model::user::CurrentUser;
 use serenity::model::id::{ChannelId, MessageId};
+use serenity::model::user::CurrentUser;
 use serenity::prelude::*;
 use serenity::utils::Color;
 
@@ -175,7 +175,8 @@ impl Handler {
         let message = {
             let me = self.user.lock().unwrap();
             let name = &me.as_ref().unwrap().name;
-            let mut msg = format!("I didn't understand that message! Try this:
+            let mut msg = format!(
+                "I didn't understand that message! Try this:
 ```
 @{} language `source code`
 ```
@@ -185,7 +186,9 @@ Or this:
 `\u{200B}``
 source code
 `\u{200B}``
-```", name, name);
+```",
+                name, name
+            );
 
             if let Ok(paths) = fs::read_dir("../langs") {
                 let mut names = Vec::new();
