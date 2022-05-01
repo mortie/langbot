@@ -15,6 +15,7 @@ use serenity::model::event::MessageUpdateEvent;
 use serenity::model::gateway::Ready;
 use serenity::model::id::{ChannelId, MessageId};
 use serenity::model::user::CurrentUser;
+use serenity::model::channel::MessageReference;
 use serenity::prelude::*;
 use serenity::utils::Color;
 
@@ -320,6 +321,10 @@ impl EventHandler for Handler {
         let resp = msg
             .channel_id
             .send_message(&ctx.http, |m| {
+                m.reference_message(MessageReference::from((msg.channel_id, msg.id)));
+                m.allowed_mentions(|a| {
+                    a.empty_parse()
+                });
                 m.embed(|embed| {
                     create_embed_from_result(output, embed);
                     embed
