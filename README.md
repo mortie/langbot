@@ -67,7 +67,7 @@ exec ./osyris input.os
 * Don't be afraid to re-build the container; podman caches all the steps it can,
   so `podman build -t langbot .` doesn't start from scratch every time.
 * You may want to investigate the compiler interactively, which can be done with
-  `podman run --rm -it -t langbot`.
+  `podman run --rm -it langbot`.
 * In fact, I find it helpful to manually run my shell commands in an interactive
   container and write the `compile.sh` script by writing down my commands there
   as I go.

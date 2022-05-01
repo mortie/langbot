@@ -11,6 +11,7 @@ langs='
 	egel
 	osyris
 	python
+	racket
 	shell
 '
 
