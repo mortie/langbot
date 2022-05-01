@@ -21,14 +21,14 @@ use serenity::utils::Color;
 
 lazy_static! {
     static ref MULTILINE_CODE_RX: Regex = {
-        let pattern = r"^<@\d+>\s+(\w+).*```\w*(.*?)```";
+        let pattern = r"!(\S+)\s+```\S*(.*?)```";
         RegexBuilder::new(pattern)
             .dot_matches_new_line(true)
             .build()
             .unwrap()
     };
     static ref INLINE_CODE_RX: Regex = {
-        let pattern = r"^<@\d+>\s+(\w+).*`(.*?)`";
+        let pattern = r"!(\S+)\s+`(.*?)`";
         Regex::new(pattern).unwrap()
     };
 }
@@ -156,20 +156,15 @@ impl Handler {
         Some(Ok(output))
     }
 
-    fn is_message_for_us(&self, msg: &Message) -> bool {
-        // Ignore messages from bots
-        if msg.author.bot {
-            return false;
-        }
-
+    fn does_message_mention_us(&self, msg: &Message) -> bool {
         // Ignore messages which don't mention us
         let me = self.user.lock().unwrap();
         let my_id = me.as_ref().unwrap().id;
-        if msg.mentions.iter().find(|&m| m.id == my_id).is_none() {
-            return false;
+        if msg.mentions.iter().find(|&m| m.id == my_id).is_some() {
+            return true;
         }
 
-        true
+        false
     }
 
     async fn send_usage_info(&self, ctx: Context, msg: Message) {
@@ -177,18 +172,18 @@ impl Handler {
             let me = self.user.lock().unwrap();
             let name = &me.as_ref().unwrap().name;
             let mut msg = format!(
-                "I didn't understand that message! Try this:
+                "I'm {}! I can be used to run code in all kinds of languages. Try this:
 ```
-@{} language `source code`
+!language `source code`
 ```
 Or this:
 ```
-@{} language
+!language
 `\u{200B}``
 source code
 `\u{200B}``
 ```",
-                name, name
+                name
             );
 
             if let Ok(paths) = fs::read_dir("../langs") {
@@ -291,14 +286,17 @@ impl EventHandler for Handler {
     }
 
     async fn message(&self, ctx: Context, msg: Message) {
-        if !self.is_message_for_us(&msg) {
+        // Ignore messages from bots
+        if msg.author.bot {
             return;
         }
 
         let output = match self.parse_and_run(&msg.content) {
             Some(output) => output,
             None => {
-                self.send_usage_info(ctx, msg).await;
+                if self.does_message_mention_us(&msg) {
+                    self.send_usage_info(ctx, msg).await;
+                }
                 return;
             }
         };
