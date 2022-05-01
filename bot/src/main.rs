@@ -2,6 +2,7 @@ mod podmanager;
 
 use std::env;
 use std::sync::{Arc, Mutex};
+use std::fs;
 
 use lazy_static::lazy_static;
 use lru::LruCache;
@@ -12,7 +13,8 @@ use serenity::builder::CreateEmbed;
 use serenity::model::channel::Message;
 use serenity::model::event::MessageUpdateEvent;
 use serenity::model::gateway::Ready;
-use serenity::model::id::{ChannelId, MessageId, UserId};
+use serenity::model::user::CurrentUser;
+use serenity::model::id::{ChannelId, MessageId};
 use serenity::prelude::*;
 use serenity::utils::Color;
 
@@ -87,7 +89,7 @@ fn zws_encode(text: String) -> String {
 }
 
 struct Handler {
-    id: Mutex<Option<UserId>>,
+    user: Mutex<Option<CurrentUser>>,
     podman: Arc<podmanager::PodManager>,
     responses: Mutex<LruCache<(ChannelId, MessageId), (ChannelId, MessageId)>>,
 }
@@ -127,7 +129,7 @@ fn create_embed_from_result(output: ExecResult, embed: &mut CreateEmbed) {
 }
 
 impl Handler {
-    fn parse_and_run_text(&self, text: &str) -> Option<Result<ExecResult, String>> {
+    fn parse_and_run(&self, text: &str) -> Option<Result<ExecResult, String>> {
         let caps = MULTILINE_CODE_RX
             .captures(text)
             .or_else(|| INLINE_CODE_RX.captures(text));
@@ -153,19 +155,70 @@ impl Handler {
         Some(Ok(output))
     }
 
-    fn parse_and_run(&self, msg: &Message) -> Option<Result<ExecResult, String>> {
+    fn is_message_for_us(&self, msg: &Message) -> bool {
         // Ignore messages from bots
         if msg.author.bot {
-            return None;
+            return false;
         }
 
         // Ignore messages which don't mention us
-        let my_id = self.id.lock().unwrap().unwrap();
+        let me = self.user.lock().unwrap();
+        let my_id = me.as_ref().unwrap().id;
         if msg.mentions.iter().find(|&m| m.id == my_id).is_none() {
-            return None;
+            return false;
         }
 
-        self.parse_and_run_text(&msg.content)
+        true
+    }
+
+    async fn send_usage_info(&self, ctx: Context, msg: Message) {
+        let message = {
+            let me = self.user.lock().unwrap();
+            let name = &me.as_ref().unwrap().name;
+            let mut msg = format!("I didn't understand that message! Try this:
+```
+@{} language `source code`
+```
+Or this:
+```
+@{} language
+`\u{200B}``
+source code
+`\u{200B}``
+```", name, name);
+
+            if let Ok(paths) = fs::read_dir("../langs") {
+                let mut names = Vec::new();
+                for path in paths {
+                    if let Ok(path) = path {
+                        names.push(path.file_name().to_string_lossy().to_string());
+                    }
+                }
+
+                names.sort();
+                msg += "\nI support these languages: ";
+                let mut first = true;
+                for name in names {
+                    if !first {
+                        msg += ", ";
+                    } else {
+                        first = false;
+                    }
+
+                    msg += "`";
+                    msg += &name;
+                    msg += "`";
+                }
+            }
+
+            msg += "\nFor more info, check out: <https://github.com/mortie/langbot>";
+
+            msg
+        };
+
+        if let Err(err) = msg.channel_id.say(&ctx.http, message).await {
+            eprintln!("Couldn't send message: {}", err);
+        }
     }
 }
 
@@ -188,7 +241,7 @@ impl EventHandler for Handler {
             None => return,
         };
 
-        let output = match self.parse_and_run_text(&content) {
+        let output = match self.parse_and_run(&content) {
             Some(output) => output,
             None => return,
         };
@@ -234,9 +287,16 @@ impl EventHandler for Handler {
     }
 
     async fn message(&self, ctx: Context, msg: Message) {
-        let output = match self.parse_and_run(&msg) {
+        if !self.is_message_for_us(&msg) {
+            return;
+        }
+
+        let output = match self.parse_and_run(&msg.content) {
             Some(output) => output,
-            None => return,
+            None => {
+                self.send_usage_info(ctx, msg).await;
+                return;
+            }
         };
 
         let output = match output {
@@ -284,8 +344,8 @@ impl EventHandler for Handler {
     }
 
     async fn ready(&self, _: Context, ready: Ready) {
-        *self.id.lock().unwrap() = Some(ready.user.id);
         eprintln!("{} is connected!", ready.user.name);
+        *self.user.lock().unwrap() = Some(ready.user);
     }
 }
 
@@ -297,7 +357,7 @@ async fn main() {
         | GatewayIntents::MESSAGE_CONTENT;
 
     let handler = Handler {
-        id: Mutex::new(None),
+        user: Mutex::new(None),
         podman: Arc::new(PodManager::new("langbot".into())),
         responses: Mutex::new(LruCache::new(1024)),
     };
