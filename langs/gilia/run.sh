@@ -1,2 +1,2 @@
 cat >input.g
-./gilia input.g
+exec ./gilia input.g
