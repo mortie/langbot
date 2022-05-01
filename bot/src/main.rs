@@ -1,12 +1,12 @@
 mod podmanager;
 
 use std::env;
-use std::sync::Mutex;
+use std::sync::{Arc, Mutex};
 
 use lazy_static::lazy_static;
+use lru::LruCache;
 use podmanager::{ExecResult, PodManager};
 use regex::{Regex, RegexBuilder};
-use lru::LruCache;
 use serenity::async_trait;
 use serenity::builder::CreateEmbed;
 use serenity::model::channel::Message;
@@ -88,7 +88,7 @@ fn zws_encode(text: String) -> String {
 
 struct Handler {
     id: Mutex<Option<UserId>>,
-    podman: Mutex<podmanager::PodManager>,
+    podman: Arc<podmanager::PodManager>,
     responses: Mutex<LruCache<(ChannelId, MessageId), (ChannelId, MessageId)>>,
 }
 
@@ -139,8 +139,8 @@ impl Handler {
         let language = caps.get(1).unwrap().as_str().to_lowercase();
         let content = caps.get(2).unwrap().as_str();
 
-        let pod = self.podman.lock().unwrap().get_pod();
-        let pod = match pod {
+        let pod = self.podman.get_pod();
+        let mut pod = match pod {
             Ok(pod) => pod,
             Err(err) => return Some(Err(err)),
         };
@@ -298,7 +298,7 @@ async fn main() {
 
     let handler = Handler {
         id: Mutex::new(None),
-        podman: Mutex::new(PodManager::new("langbot".into())),
+        podman: Arc::new(PodManager::new("langbot".into())),
         responses: Mutex::new(LruCache::new(1024)),
     };
 
