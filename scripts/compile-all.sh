@@ -9,6 +9,7 @@ langs='
 	cognate
 	cthulhu
 	egel
+	gilia
 	osyris
 	python
 	racket
