@@ -12,6 +12,7 @@ langs='
 	egel
 	fortran
 	gilia
+	javascript
 	osyris
 	phosphor
 	python
