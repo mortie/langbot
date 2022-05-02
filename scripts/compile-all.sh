@@ -10,12 +10,14 @@ langs='
 	cognate
 	cthulhu
 	egel
+	fortran
 	gilia
 	osyris
 	python
 	racket
 	shell
 '
+
 
 count=0
 for lang in $langs; do
