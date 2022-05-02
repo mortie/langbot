@@ -18,7 +18,6 @@ langs='
 	shell
 '
 
-
 count=0
 for lang in $langs; do
 	case "$lang" in '#'*) continue;; esac
