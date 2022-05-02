@@ -15,6 +15,7 @@ langs='
 	osyris
 	python
 	racket
+	ruby
 	shell
 '
 

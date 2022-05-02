@@ -6,7 +6,7 @@ RUN apt-get install -y \
 	curl flex bison clang python3 racket \
 	llvm-12 libclang-common-12-dev llvm-13 libclang-common-13-dev \
 	libfmt-dev zlib1g-dev libblocksruntime-dev libgmp-dev libreadline-dev \
-	libnuma-dev gfortran
+	libnuma-dev gfortran ruby
 
 
 # Set up Haskell stuff using ghcup
