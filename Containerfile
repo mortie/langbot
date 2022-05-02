@@ -6,8 +6,7 @@ RUN apt-get install -y \
 	curl flex bison clang python3 racket \
 	llvm-12 libclang-common-12-dev llvm-13 libclang-common-13-dev \
 	libfmt-dev zlib1g-dev libblocksruntime-dev libgmp-dev libreadline-dev \
-	libnuma-dev gfortran ruby
-
+	libnuma-dev libssl-dev gfortran ruby
 
 # Set up Haskell stuff using ghcup
 RUN \
@@ -21,11 +20,18 @@ RUN \
 	ghcup -v install ghc --isolate /usr/local --force 9.2.2 && \
 	ghcup -v install cabal --isolate /usr/local/bin --force 3.6.2.0
 
+RUN raco setup --doc-index
+
 WORKDIR /app
 RUN mkdir /home/runner && groupadd runner && useradd --home /home/runner -g runner runner
 RUN chown runner:runner /app && chown runner:runner /home/runner
 USER runner
 RUN cabal update
+
+# Barrel is a racket language, so installing it here makes it available
+# via the !racket language
+RUN raco setup --doc-index
+run raco pkg install --batch --deps search-auto barrel
 
 COPY langs langs
 COPY scripts scripts
