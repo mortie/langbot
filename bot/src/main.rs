@@ -21,7 +21,7 @@ use serenity::utils::Color;
 
 lazy_static! {
     static ref MULTILINE_CODE_RX: Regex = {
-        let pattern = r"!(\S+)\s+```\S*(.*?)```";
+        let pattern = r"!(\S+)\s+```\S*\s*(.*?)```";
         RegexBuilder::new(pattern)
             .dot_matches_new_line(true)
             .build()
