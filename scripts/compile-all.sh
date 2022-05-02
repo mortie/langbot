@@ -13,6 +13,7 @@ langs='
 	egel
 	fortran
 	gilia
+	haskell
 	javascript
 	nasm
 	osyris
@@ -20,6 +21,7 @@ langs='
 	python
 	racket
 	ruby
+	rust
 	shell
 '
 
