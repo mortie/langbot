@@ -6,8 +6,7 @@ build:
 	podman build -t langbot .
 
 .PHONY: dist
-dist:
-	podman build --squash-all -t langbot .
+dist: build
 	podman save langbot | $(GZ) | $(CAT) > langbot-image.tgz
 
 .PHONY: load
