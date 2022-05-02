@@ -13,6 +13,7 @@ langs='
 	fortran
 	gilia
 	osyris
+	phosphor
 	python
 	racket
 	ruby

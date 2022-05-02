@@ -4,6 +4,7 @@ RUN apt-get update && apt-get upgrade -y
 RUN apt-get install -y \
 	git make gcc g++ rustc cargo cmake meson pkg-config \
 	curl flex bison clang python3 racket \
+	lsb-release binutils nasm \
 	llvm-12 libclang-common-12-dev llvm-13 libclang-common-13-dev \
 	libfmt-dev zlib1g-dev libblocksruntime-dev libgmp-dev libreadline-dev \
 	libnuma-dev libssl-dev gfortran ruby
@@ -19,6 +20,16 @@ RUN \
 RUN \
 	ghcup -v install ghc --isolate /usr/local --force 9.2.2 && \
 	ghcup -v install cabal --isolate /usr/local/bin --force 3.6.2.0
+
+# Install Node.js (the manual way without downloading bash scripts):
+RUN VERSION=node_16.x && \
+    KEYRING=/usr/share/keyrings/nodesource.gpg && \
+	DISTRO="$(lsb_release -s -c)" && \
+    curl -fsSL https://deb.nodesource.com/gpgkey/nodesource.gpg.key | gpg --dearmor > "$KEYRING" && \
+	gpg --no-default-keyring --keyring "$KEYRING" --list-keys && \
+	echo "deb [signed-by=$KEYRING] https://deb.nodesource.com/$VERSION $DISTRO main" > /etc/apt/sources.list.d/nodesource.list
+RUN \
+    apt-get update && apt-get install -y nodejs
 
 RUN raco setup --doc-index
 
