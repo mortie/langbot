@@ -6,7 +6,8 @@ RUN apt-get install -y \
 	curl flex bison clang python3 racket \
 	llvm-12 libclang-common-12-dev llvm-13 libclang-common-13-dev \
 	libfmt-dev zlib1g-dev libblocksruntime-dev libgmp-dev libreadline-dev \
-	libnuma-dev
+	libnuma-dev gfortran
+
 
 # Set up Haskell stuff using ghcup
 RUN gpg --batch --keyserver keys.openpgp.org --recv-keys 7784930957807690A66EBDBE3786C5262ECB4A3F
