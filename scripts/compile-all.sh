@@ -4,6 +4,7 @@ set -euo pipefail
 concurrency=8
 langs='
 	ante
+	asm
 	c
 	c++
 	carbon
@@ -13,6 +14,7 @@ langs='
 	fortran
 	gilia
 	javascript
+	nasm
 	osyris
 	phosphor
 	python
