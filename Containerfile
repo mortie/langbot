@@ -17,6 +17,8 @@ RUN \
 RUN \
 	ghcup -v install ghc --isolate /usr/local --force 9.2.2 && \
 	ghcup -v install cabal --isolate /usr/local/bin --force 3.6.2.0
+RUN \
+  raco pkg install barrel
 
 WORKDIR /app
 RUN mkdir /home/runner && groupadd runner && useradd --home /home/runner -g runner runner
