@@ -21,15 +21,8 @@ RUN \
 	ghcup -v install ghc --isolate /usr/local --force 9.2.2 && \
 	ghcup -v install cabal --isolate /usr/local/bin --force 3.6.2.0
 
-# Install Node.js (the manual way without downloading bash scripts):
-RUN VERSION=node_16.x && \
-    KEYRING=/usr/share/keyrings/nodesource.gpg && \
-	DISTRO="$(lsb_release -s -c)" && \
-    curl -fsSL https://deb.nodesource.com/gpgkey/nodesource.gpg.key | gpg --dearmor > "$KEYRING" && \
-	gpg --no-default-keyring --keyring "$KEYRING" --list-keys && \
-	echo "deb [signed-by=$KEYRING] https://deb.nodesource.com/$VERSION $DISTRO main" > /etc/apt/sources.list.d/nodesource.list
-RUN \
-    apt-get update && apt-get install -y nodejs
+# Install Node.js 16
+RUN apt-get install -y npm && npm install -g n && n 16
 
 RUN raco setup --doc-index
 
