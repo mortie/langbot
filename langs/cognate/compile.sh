@@ -1,6 +1,6 @@
 git clone https://github.com/StavromulaBeta/cognate.git
 cd cognate
-git checkout 25a49c4150c095cb395efa97044406ad4ba7f418
+git checkout 99f8fafc71346634bae57eaef43d3b6ed32a7beb
 
 make PREFIX="$DEPLOYDIR" install
 
