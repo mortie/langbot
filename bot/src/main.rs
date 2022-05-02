@@ -21,7 +21,7 @@ use serenity::utils::Color;
 
 lazy_static! {
     static ref MULTILINE_CODE_RX: Regex = {
-        let pattern = r"!(\S+)\s+```\S*(.*?)```";
+        let pattern = r"!(\S+)\s+```\S*\s*(.*?)```";
         RegexBuilder::new(pattern)
             .dot_matches_new_line(true)
             .build()
@@ -157,7 +157,11 @@ impl Handler {
     }
 
     fn does_message_mention_us(&self, msg: &Message) -> bool {
-        // Ignore messages which don't mention us
+        // If the message is a response, we don't wanna care
+        if let Some(_) = msg.referenced_message {
+            return false;
+        }
+
         let me = self.user.lock().unwrap();
         let my_id = me.as_ref().unwrap().id;
         if msg.mentions.iter().find(|&m| m.id == my_id).is_some() {

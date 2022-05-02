@@ -10,11 +10,13 @@ langs='
 	cognate
 	cthulhu
 	egel
+	fortran
 	gilia
 	osyris
 	phosphor
 	python
 	racket
+	ruby
 	shell
 '
 
