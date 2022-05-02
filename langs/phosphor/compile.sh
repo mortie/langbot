@@ -1,18 +1,18 @@
-mkdir download
-cd download
+git clone https://github.com/PhosphorLang/PhosphorStandardLibrary.git
+cd PhosphorStandardLibrary
+git checkout bfbd217311a6d21c1022a1717c268163ab649997
+./build.sh linuxAmd64
+cd ..
 
-# Download the standard library:
-curl -L https://github.com/PhosphorLang/PhosphorStandardLibrary/releases/download/version%2F0.1/phosphorStandardLibrary.tgz -o phosphorStandardLibrary.tgz
-tar zxf phosphorStandardLibrary.tgz
+git clone https://github.com/PhosphorLang/PhosphorCompiler.git
+cd PhosphorCompiler
+git checkout 74f1a58128201de2627d5954dce70cbb5792a31d
+npm install
+npm run build
+cd ..
 
-# Download the compiler:
-curl -L https://github.com/PhosphorLang/PhosphorCompiler/releases/download/version%2F0.2.1/phosphor-compiler-0.2.1.tgz -o phosphor-compiler.tgz
-tar zxf phosphor-compiler.tgz
-mv package phosphorCompiler
-
-# Deploy:
-cp -r phosphorStandardLibrary "$DEPLOYDIR"
-cp -r phosphorCompiler "$DEPLOYDIR"
+cp -r PhosphorStandardLibrary/bin "$DEPLOYDIR/PhosphorStandardLibrary"
+cp -r PhosphorCompiler "$DEPLOYDIR"
 
 # Sanity confirmation:
 touch "$DEPLOYDIR/.done"
