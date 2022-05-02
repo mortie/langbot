@@ -12,6 +12,7 @@ langs='
 	egel
 	gilia
 	osyris
+	phosphor
 	python
 	racket
 	shell
