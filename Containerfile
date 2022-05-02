@@ -10,7 +10,9 @@ RUN apt-get install -y \
 
 
 # Set up Haskell stuff using ghcup
-RUN gpg --batch --keyserver keys.openpgp.org --recv-keys 7784930957807690A66EBDBE3786C5262ECB4A3F
+RUN \
+	gpg --batch --keyserver keys.openpgp.org --recv-keys 7784930957807690A66EBDBE3786C5262ECB4A3F && \
+	gpgconf --kill all # podman gets angry if it has to persist sockets
 RUN \
 	curl https://downloads.haskell.org/~ghcup/$(uname -p)-linux-ghcup > /usr/bin/ghcup && \
 	chmod +x /usr/bin/ghcup && \
