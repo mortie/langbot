@@ -29,6 +29,8 @@ if \
 	! [ -f "$topdir/staging/$lang/.shasum" ] || \
 	[ "$(cat "$topdir/staging/$lang/.shasum")" != "$shasum" ]
 then
+	echo "=== START: $lang ===" >&2
+
 	# Create workdir, populate it with the content of the language spec dir
 	rm -rf "$topdir/work/$lang"
 	mkdir -p "$topdir/work"
@@ -42,7 +44,7 @@ then
 	fi
 
 	# If there's a compile.sh script, run it, with DEPLOYDIR set to the staging dir
-	if [ "$topdir/work/$lang/compile.sh" ]; then
+	if [ -f "$topdir/work/$lang/compile.sh" ]; then
 		(cd "$topdir/work/$lang" && \
 			DEPLOYDIR="$topdir/staging/$lang" bash -x -euo pipefail ./compile.sh)
 	else
@@ -58,7 +60,7 @@ then
 	# Store the shasum of the input files, to avoid recompiling later
 	echo "$shasum" >"$topdir/staging/$lang/.shasum"
 
-	echo "Compiled $lang." >&2
+	echo "=== DONE: $lang ===" >&2
 else
 	echo "Nothing to do for $lang." >&2
 fi
