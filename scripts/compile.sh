@@ -53,7 +53,7 @@ then
 
 	# 'compile.sh' scripts should produce a .done file as a sanity check
 	if ! [ -f "$topdir/staging/$lang/.done" ]; then
-		echo "$langdir/compile.sh failed to produce a '$$DEPLOYDIR/.done' file!" >&2
+		echo "$langdir/compile.sh failed to produce a '\$DEPLOYDIR/.done' file!" >&2
 		exit 1
 	fi
 
