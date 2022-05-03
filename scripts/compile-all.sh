@@ -21,9 +21,11 @@ langs='
 	phosphor
 	python
 	racket
+	rpl++
 	ruby
 	rust
 	shell
+	trpl++
 '
 
 count=0
