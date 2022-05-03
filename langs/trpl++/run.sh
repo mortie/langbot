@@ -1,3 +1,2 @@
-cd turbo-rpl
-cat > index.rpl
-exec ./trpl index.rpl
+cat >input.rpl
+exec ./trpl input.rpl
