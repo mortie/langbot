@@ -15,6 +15,7 @@ langs='
 	gilia
 	haskell
 	javascript
+	mlatu
 	nasm
 	osyris
 	phosphor
