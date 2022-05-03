@@ -15,6 +15,7 @@ langs='
 	gilia
 	haskell
 	javascript
+	lean
 	nasm
 	osyris
 	phosphor

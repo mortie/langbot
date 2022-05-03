@@ -9,6 +9,11 @@ RUN apt-get install -y \
 	libfmt-dev zlib1g-dev libblocksruntime-dev libgmp-dev libreadline-dev \
 	libnuma-dev libssl-dev gfortran ruby
 
+# Set up Lean stuff with Elan
+RUN curl https://raw.githubusercontent.com/leanprover/elan/master/elan-init.sh -sSf | sh
+RUN \
+	elan default leanprover/lean4:nightly
+
 # Set up Haskell stuff using ghcup
 RUN \
 	gpg --batch --keyserver keys.openpgp.org --recv-keys 7784930957807690A66EBDBE3786C5262ECB4A3F && \
