@@ -15,23 +15,25 @@ langs='
 	gilia
 	haskell
 	javascript
-	lean
+  lean
+  mlatu
 	nasm
 	osyris
 	phosphor
 	python
 	racket
+	rpl++
 	ruby
 	rust
 	shell
+	trpl++
 '
 
 count=0
 for lang in $langs; do
 	case "$lang" in '#'*) continue;; esac
 
-	echo "=== START: $lang ===" >&2
-	(./scripts/compile.sh "$lang" && echo "=== DONE: $lang ===" >&2) &
+	./scripts/compile.sh "$lang" &
 	count=$((count + 1))
 	if [ $count -ge $concurrency ]; then
 		wait -n
