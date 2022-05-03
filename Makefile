@@ -3,7 +3,8 @@ CAT ?= pv
 
 .PHONY: build
 build:
-	podman build -t langbot .
+	mkdir -p staging
+	podman build --volume "$(abspath staging)":/app/staging -t langbot .
 
 .PHONY: dist
 dist: build
