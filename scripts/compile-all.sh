@@ -4,16 +4,24 @@ set -euo pipefail
 concurrency=8
 langs='
 	ante
+	asm
 	c
 	c++
 	carbon
 	cognate
 	cthulhu
 	egel
+	fortran
 	gilia
+	haskell
+	javascript
+	nasm
 	osyris
+	phosphor
 	python
 	racket
+	ruby
+	rust
 	shell
 '
 
