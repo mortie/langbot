@@ -8,7 +8,8 @@ RUN apt-get install -y \
 	llvm-12 libclang-common-12-dev llvm-13 libclang-common-13-dev \
 	libfmt-dev zlib1g-dev libblocksruntime-dev libgmp-dev libreadline-dev \
 	libnuma-dev libssl-dev gfortran ruby \
-	fortune cowsay
+	fortune cowsay \
+	libsqlite3-dev libcurl4-openssl-dev libhiredis-dev
 
 # The games path is used by fortune and cowsay:
 ENV PATH "${PATH}:/usr/games"
