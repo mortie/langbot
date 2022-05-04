@@ -13,10 +13,6 @@ RUN apt-get install -y \
 # The games path is used by fortune and cowsay:
 ENV PATH "${PATH}:/usr/games"
 
-RUN curl https://raw.githubusercontent.com/leanprover/elan/master/elan-init.sh -sSf | sh
-RUN \
-	elan default leanprover/lean4:nightly
-
 # Set up Haskell stuff using ghcup
 RUN \
 	gpg --batch --keyserver keys.openpgp.org --recv-keys 7784930957807690A66EBDBE3786C5262ECB4A3F && \
