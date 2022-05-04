@@ -18,6 +18,7 @@ langs='
 	mlatu
 	nasm
 	osyris
+	perl
 	phosphor
 	python
 	racket
