@@ -15,8 +15,8 @@ langs='
 	gilia
 	haskell
 	javascript
-  lean
-  mlatu
+	lean
+	mlatu
 	nasm
 	osyris
 	perl

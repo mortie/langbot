@@ -1,2 +1,2 @@
 cat >input.lean
-exec lean input.lean
+exec lean --run input.lean
