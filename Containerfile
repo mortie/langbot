@@ -7,7 +7,11 @@ RUN apt-get install -y \
 	lsb-release binutils nasm \
 	llvm-12 libclang-common-12-dev llvm-13 libclang-common-13-dev \
 	libfmt-dev zlib1g-dev libblocksruntime-dev libgmp-dev libreadline-dev \
-	libnuma-dev libssl-dev gfortran ruby
+	libnuma-dev libssl-dev gfortran ruby \
+	fortune cowsay
+
+# The games path is used by fortune and cowsay:
+ENV PATH "${PATH}:/usr/games"
 
 # Set up Haskell stuff using ghcup
 RUN \
