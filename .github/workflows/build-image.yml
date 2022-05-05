@@ -6,8 +6,17 @@ jobs:
     steps:
       - name: Check out repo
         uses: actions/checkout@v1
+      - name: Cache staging dir
+        uses: actions/cache@v3
+        id: staging-cache
+        with:
+          key: ${{runner.os}}-staging-${{hashFiles('langs/*/*')}}
+          restore-keys: ${{runner.os}}-staging
+          path: staging
+      - name: Create staging dir if it doesn't exist
+        run: mkdir -p staging
       - name: Install packages
-        run: sudo apt-get update && sudo apt-get install -y buildah xz-utils podman pigz
+        run: sudo apt-get update && sudo apt-get install -y buildah pigz podman
       - name: Build with Buildah
         uses: redhat-actions/buildah-build@v2
         with:
@@ -16,11 +25,12 @@ jobs:
           tags: latest ${{github.sha}}
           containerfiles: |
             ./Containerfile
+          extra-args: |
+            --volume ${{github.workspace}}/staging:/app/staging
       - name: Store image file
         run: podman save langbot | pigz > langbot-image.tgz
       - name: Upload image file
         uses: actions/upload-artifact@v3
         with:
-          name: langbot-image.txz
-          path: ./langbot-image.txz
-
+          name: langbot-image.tgz
+          path: ./langbot-image.tgz
