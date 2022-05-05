@@ -8,7 +8,7 @@ RUN apt-get install -y \
 	llvm-12 libclang-common-12-dev llvm-13 libclang-common-13-dev \
 	libfmt-dev zlib1g-dev libblocksruntime-dev libgmp-dev libreadline-dev \
 	libnuma-dev libssl-dev gfortran ruby \
-	fortune cowsay \
+	fortune cowsay xxd \
 	libsqlite3-dev libcurl4-openssl-dev libhiredis-dev
 
 # The games path is used by fortune and cowsay:
@@ -34,7 +34,6 @@ RUN raco setup --doc-index
 WORKDIR /app
 RUN mkdir /home/runner && groupadd runner && useradd --home /home/runner -g runner runner
 RUN chown runner:runner /app && chown runner:runner /home/runner
-RUN mkdir -p /app/staging && chown runner:runner /app/staging
 USER runner
 RUN cabal update
 
