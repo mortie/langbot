@@ -122,7 +122,7 @@ impl Pod {
 
         let mut errmsg: Option<String> = None;
         {
-            let msg = String::from_utf8_lossy(&output.stderr).trim().to_string();
+            let msg = String::from_utf8_lossy(&output.stderr).trim_end().to_string();
             if msg.len() > 0 {
                 errmsg = Some(msg);
             }
@@ -130,7 +130,7 @@ impl Pod {
 
         let mut outmsg: Option<String> = None;
         {
-            let msg = String::from_utf8_lossy(&output.stdout).trim().to_string();
+            let msg = String::from_utf8_lossy(&output.stdout).trim_end().to_string();
             if msg.len() > 0 {
                 outmsg = Some(msg);
             }
