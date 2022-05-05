@@ -33,7 +33,7 @@ RUN raco setup --doc-index
 
 WORKDIR /app
 RUN mkdir /home/runner && groupadd runner && useradd --home /home/runner -g runner runner
-RUN chown runner:runner /app && chown runner:runner /home/runner
+RUN chown runner:runner /app && chown runner:runner /home/runner && chown -R runner:runner /app/staging
 USER runner
 RUN cabal update
 
