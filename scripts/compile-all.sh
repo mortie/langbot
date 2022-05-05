@@ -14,6 +14,7 @@ langs='
 	fortran
 	gilia
 	haskell
+	hook
 	javascript
 	lean
 	mlatu
