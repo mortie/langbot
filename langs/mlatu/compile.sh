@@ -1,6 +1,6 @@
 git clone https://github.com/mlatu-lang/mlatu-runner.git
 cd mlatu-runner
-git checkout 3974c0e501f80e2633bd7b47ee931e571f38f2a4
+git checkout eedc8cbb98b840aca3492ffacce87032a570f718
 
 cargo build --release
 cp target/release/mlatu-runner "$DEPLOYDIR"
