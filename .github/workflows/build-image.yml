@@ -7,7 +7,7 @@ jobs:
       - name: Check out repo
         uses: actions/checkout@v1
       - name: Install packages
-        run: sudo apt-get update && sudo apt-get install -y buildah xz-utils podman
+        run: sudo apt-get update && sudo apt-get install -y buildah xz-utils podman pigz
       - name: Build with Buildah
         uses: redhat-actions/buildah-build@v2
         with:
@@ -17,7 +17,7 @@ jobs:
           containerfiles: |
             ./Containerfile
       - name: Store image file
-        run: podman save langbot | xz > langbot-image.txz
+        run: podman save langbot | pigz > langbot-image.tgz
       - name: Upload image file
         uses: actions/upload-artifact@v3
         with:
