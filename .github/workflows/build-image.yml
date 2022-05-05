@@ -1,0 +1,26 @@
+name: Build Image
+on: [pull_request, workflow_dispatch]
+jobs:
+  Build:
+    runs-on: ubuntu-22.04
+    steps:
+      - name: Check out repo
+        uses: actions/checkout@v1
+      - name: Install packages
+        run: sudo apt-get update && sudo apt-get install -y buildah xz-utils podman
+      - name: Build with Buildah
+        uses: redhat-actions/buildah-build@v2
+        with:
+          layers: true
+          image: langbot
+          tags: latest ${{github.sha}}
+          containerfiles: |
+            ./Containerfile
+      - name: Store image file
+        run: podman save langbot | xz > langbot-image.txz
+      - name: Upload image file
+        uses: actions/upload-artifact@v3
+        with:
+          name: langbot-image.txz
+          path: ./langbot-image.txz
+
