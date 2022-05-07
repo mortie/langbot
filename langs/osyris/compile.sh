@@ -1,6 +1,6 @@
 git clone https://github.com/mortie/osyris.git
 cd osyris
-git checkout 2db1f2c1746dbda2451d8cc888921a0f518aaf78
+git checkout 0c6c6dbbb96a6b038b91d47541c8924ef3a2b74b
 
 cargo build --release
 cp target/release/osyris "$DEPLOYDIR"
