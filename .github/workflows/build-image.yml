@@ -16,7 +16,7 @@ jobs:
       - name: Create staging dir if it doesn't exist
         run: mkdir -p staging
       - name: Install packages
-        run: sudo apt-get update && sudo apt-get install -y buildah pigz podman
+        run: sudo apt-get update && sudo apt-get install -y pigz podman
       - name: Build with Buildah
         uses: redhat-actions/buildah-build@v2
         with:
