@@ -2,12 +2,12 @@
 
 ## Creating an image
 
-1. Install podman
-2. Build an image: `podman build -t langbot .`
+1. Install podman and make
+2. Build an image: `make build`
 
 ## Running a language
 
-Run `podman run --rm -i langbot ./scripts/run.sh <language>`. It will read source code
+Run `make run L=<some language>`. It will read source code
 from stdin and execute it.
 
 ## Adding your own language
@@ -62,12 +62,12 @@ exec ./osyris input.os
 ### Some development tips
 
 * During development, it might help to remove all other languages than yours from
-  the list of languages in `scripts/compile-all.sh`, so that `podman build -t langbot .`
+  the list of languages in `scripts/compile-all.sh`, so that `make build`
   only needs to run your language.
 * Don't be afraid to re-build the container; podman caches all the steps it can,
-  so `podman build -t langbot .` doesn't start from scratch every time.
+  so `make build` doesn't start from scratch every time.
 * You may want to investigate the compiler interactively, which can be done with
-  `podman run --rm -it langbot`.
+  `make shell`.
 * In fact, I find it helpful to manually run my shell commands in an interactive
   container and write the `compile.sh` script by writing down my commands there
   as I go.
