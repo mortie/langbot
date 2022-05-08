@@ -1,0 +1,3 @@
+program hello
+  Write(*,"(a)") "Hello World"
+end program hello

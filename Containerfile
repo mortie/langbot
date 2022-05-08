@@ -6,6 +6,7 @@ RUN apt-get update && apt-get upgrade -y
 # the main image should go here
 
 WORKDIR /app
+RUN mkdir -p /app/staging # In case we're in a context where mounts don't work
 RUN chown runner:runner /app && chown -R runner:runner /app/staging
 USER runner
 
