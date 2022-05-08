@@ -1,0 +1,8 @@
+@mangle("puts")
+def putString(s: str): int;
+
+@entry
+def entry(): int {
+	putString("Hello World");
+	return 0;
+}
