@@ -22,7 +22,7 @@ if ! [ -f "$langdir/run.sh" ]; then
 fi
 
 # Compute the shasum of the input files, for change tracking
-shasum="$(find "$langdir" -type f -exec shasum {} \; | shasum)"
+shasum="$(find "$langdir" -type f -not -name hello-world.*txt -exec shasum {} \; | shasum)"
 
 # Do we need to recompile?
 if \

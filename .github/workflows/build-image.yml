@@ -27,6 +27,12 @@ jobs:
             ./Containerfile
           extra-args: |
             --volume ${{github.workspace}}/staging:/app/staging
+      - name: Run test suite
+        run: |
+          echo '[engine]' > .containers.conf
+          echo 'cgroup_manager = "cgroupfs"' >> .containers.conf
+          export CONTAINERS_CONF="$PWD/.containers.conf"
+          ./scripts/run-tests.sh
       - name: Store image file
         run: podman save langbot | pigz > langbot-image.tgz
       - name: Upload image file

@@ -21,4 +21,8 @@ shell:
 .PHONY: run
 run:
 	@if [ -z "$(L)" ]; then echo "Usage: make run L=whatever" >&2; exit 1; fi
-	podman run --rm -it langbot ./scripts/run.sh "$(L)"
+	podman run --rm -i langbot ./scripts/run.sh "$(L)"
+
+.PHONY: check
+check:
+	./scripts/run-tests.sh
