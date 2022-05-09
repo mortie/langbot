@@ -1,0 +1,11 @@
+.globl main
+
+.data
+str: .ascii "Hello World"
+
+.text
+main:
+	mov $str, %rdi
+	call puts
+	mov $0, %rax
+	ret

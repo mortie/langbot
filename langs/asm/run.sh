@@ -1,4 +1,3 @@
 cat >input.s
-as -o input.o input.s
-ld -o output input.o
+gcc -static -o output input.s
 exec ./output
