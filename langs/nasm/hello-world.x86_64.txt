@@ -1,0 +1,11 @@
+global main
+section .data
+str: db "Hello World"
+
+section .text
+extern puts
+main:
+	mov rdi, str
+	call puts
+	mov rax, 0
+	ret
