@@ -1,5 +1,9 @@
 name: Build Image
-on: [pull_request, workflow_dispatch]
+on:
+  pull_request:
+  workflow_dispatch:
+  push:
+    branches: [main]
 jobs:
   Build:
     runs-on: ubuntu-22.04
