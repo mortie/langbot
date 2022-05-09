@@ -23,8 +23,10 @@ for lang in $(ls langs); do
 	fi
 
 	if [ -f "$f" ]; then
-		if ! output="$(cat "$f" | run_lang "$lang")"; then
-			echo "   Fail: $lang: Non-zero exit code"
+		if output="$(cat "$f" | run_lang "$lang")"; then
+			: # OK
+		else
+			echo "   Fail: $lang: Non-zero exit code $?"
 			echo "stdout:"
 			echo "$output" | sed 's/^/> /'
 			failed=1
