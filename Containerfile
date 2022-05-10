@@ -1,9 +1,7 @@
 FROM ghcr.io/mortie/langbot-base:1.0.0
 
-RUN apt-get update && apt-get upgrade -y
-
-# Any `RUN apt-get install -y` commands which aren't yet part of
-# the main image should go here
+RUN apt-get update && apt-get upgrade -y && apt-get install -y \
+	gettext ffmpeg
 
 WORKDIR /app
 RUN mkdir -p /app/staging # In case we're in a context where mounts don't work
