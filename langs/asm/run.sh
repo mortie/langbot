@@ -1,3 +1,3 @@
 cat >input.s
-gcc -static -o output input.s
-exec ./output
+gcc -static -o input input.s
+exec ./input

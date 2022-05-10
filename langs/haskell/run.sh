@@ -1,3 +1,3 @@
 cat >input.hs
-ghc -o output input.hs >/dev/null
-exec ./output
+ghc -o input input.hs >/dev/null
+exec ./input
