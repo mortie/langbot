@@ -61,9 +61,9 @@ exec ./osyris input.os
 
 ### Some development tips
 
-* During development, it might help to remove all other languages than yours from
-  the list of languages in `scripts/compile-all.sh`, so that `make build`
-  only needs to run your language.
+* During development, it might help to replace the `RUN ./scripts/compile-all.sh`
+  line in the `Containerfile` with `RUN ./scripts/compile.sh yourlang>`,
+  to avoid having to build all languages.
 * Don't be afraid to re-build the container; podman caches all the steps it can,
   so `make build` doesn't start from scratch every time.
 * You may want to investigate the compiler interactively, which can be done with
