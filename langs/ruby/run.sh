@@ -1,2 +1,2 @@
 cat >input.rb
-ruby input.rb
+cd wd && exec ruby ../input.rb

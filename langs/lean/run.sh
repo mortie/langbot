@@ -9,5 +9,5 @@ gcc -I include -o input.o -c input.c
 # generated an object file with a main function.
 if objdump -t input.o | grep ' main$'>/dev/null; then
 	gcc -o input input.o -L lib/lean -lleanshared -Wl,-rpath="$PWD/lib/lean"
-	exec ./input
+	cd wd && exec ../input
 fi

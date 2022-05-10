@@ -1,2 +1,2 @@
 cat >input.cb
-exec ./carbon input.cb
+cd wd && exec ../carbon input.cb

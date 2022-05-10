@@ -7,4 +7,4 @@ else
 	rm input.rkt.in
 fi
 
-exec racket input.rkt
+cd wd && exec racket ../input.rkt

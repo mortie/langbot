@@ -1,2 +1,2 @@
 cat > input.cog
-exec ./bin/cognac input.cog -run
+cd wd && exec ../bin/cognac ../input.cog -run

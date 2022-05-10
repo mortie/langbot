@@ -1,5 +1,5 @@
 #!/bin/bash
-set -e
+set -euo pipefail
 
 lang="$1"
 
@@ -17,4 +17,6 @@ if ! [ -f "$deploydir/.done" ]; then
 fi
 
 cd "$deploydir"
+rm -rf wd
+mkdir -p wd
 exec bash -euo pipefail run.sh
