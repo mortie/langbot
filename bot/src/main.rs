@@ -11,7 +11,7 @@ use lru::LruCache;
 use podmanager::{ExecResult, PodManager};
 use regex::{Regex, RegexBuilder};
 use serenity::async_trait;
-use serenity::builder::{CreateEmbed, CreateMessage};
+use serenity::builder::CreateEmbed;
 use serenity::model::channel::{Message, MessageReference, AttachmentType};
 use serenity::model::event::MessageUpdateEvent;
 use serenity::model::gateway::Ready;
@@ -130,20 +130,22 @@ fn create_embed_from_result(output: &ExecResult, embed: &mut CreateEmbed) {
     }
 }
 
-fn append_files_from_result<'a, 'b>(output: &'a ExecResult, m: &mut CreateMessage<'b>) {
+fn create_attachments(output: &ExecResult) -> Vec<AttachmentType> {
     const MAX_SIZE: u64 = 5_000_000; // 5 MiB
     let mut files = match &output.files {
         Some(files) => files.lock().unwrap(),
-        None => return,
+        None => return Vec::new(),
     };
 
     let entries = match files.entries() {
         Ok(entries) => entries,
         Err(err) => {
             eprintln!("Read files error: {}", err);
-            return;
+            return Vec::new();
         }
     };
+
+    let mut attachments: Vec<AttachmentType> = Vec::new();
 
     let mut total_size = 0;
     for ent in entries {
@@ -151,7 +153,7 @@ fn append_files_from_result<'a, 'b>(output: &'a ExecResult, m: &mut CreateMessag
             Ok(ent) => ent,
             Err(err) => {
                 eprintln!("Read files error: {}", err);
-                return;
+                return attachments;
             }
         };
 
@@ -163,14 +165,14 @@ fn append_files_from_result<'a, 'b>(output: &'a ExecResult, m: &mut CreateMessag
         total_size += entsize;
         if total_size > MAX_SIZE {
             eprintln!("Files too large!");
-            return;
+            return attachments;
         }
 
         let path = match ent.path() {
             Ok(path) => path.into_owned().to_string_lossy().to_string(),
             Err(err) => {
                 eprintln!("Invalid file name: {}", err);
-                return;
+                return attachments;
             }
         };
 
@@ -180,16 +182,18 @@ fn append_files_from_result<'a, 'b>(output: &'a ExecResult, m: &mut CreateMessag
             Ok(size) => size,
             Err(err) => {
                 eprintln!("Invalid read: {}", err);
-                return;
+                return attachments;
             }
         };
         buf.truncate(size); // In case we read less than what it said
 
-        m.add_file(AttachmentType::Bytes{
+        attachments.push(AttachmentType::Bytes{
             data: Cow::Owned(buf),
             filename: path,
         });
     }
+
+    attachments
 }
 
 impl Handler {
@@ -333,7 +337,11 @@ impl EventHandler for Handler {
                 edit.embed(|embed| {
                     create_embed_from_result(&output, embed);
                     embed
-                })
+                });
+                for attachment in create_attachments(&output) {
+                    edit.attachment(attachment);
+                }
+                edit
             })
             .await;
         match resp {
@@ -394,7 +402,9 @@ impl EventHandler for Handler {
                     create_embed_from_result(&output, embed);
                     embed
                 });
-                append_files_from_result(&output, m);
+                for attachment in create_attachments(&output) {
+                    m.add_file(attachment);
+                }
                 m
             })
             .await;
