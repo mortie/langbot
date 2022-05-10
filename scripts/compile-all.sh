@@ -2,38 +2,9 @@
 set -euo pipefail
 
 concurrency=8
-langs='
-	ante
-	asm
-	c
-	c++
-	carbon
-	cognate
-	cthulhu
-	egel
-	fortran
-	gilia
-	gwion
-	haskell
-	hook
-	javascript
-	lean
-	mlatu
-	nasm
-	osyris
-	perl
-	phosphor
-	python
-	racket
-	rpl++
-	ruby
-	rust
-	shell
-	trpl++
-'
 
 count=0
-for lang in $langs; do
+for lang in $(ls langs); do
 	case "$lang" in '#'*) continue;; esac
 
 	./scripts/compile.sh "$lang" &
