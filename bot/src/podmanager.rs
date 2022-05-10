@@ -1,6 +1,5 @@
 use std::io::Write;
 use std::process::{Command, ExitStatus, Stdio};
-use std::sync::atomic::{AtomicBool, Ordering};
 use std::sync::mpsc;
 use std::sync::{Arc, Mutex};
 use std::thread;
@@ -12,7 +11,7 @@ type Archive = tar::Archive<Cursor<Vec<u8>>>;
 
 pub struct Pod {
     id: String,
-    killed: bool,
+    killed: Arc<Mutex<bool>>,
 }
 
 pub struct ExecResult {
@@ -64,20 +63,23 @@ impl Pod {
             return Err("Starting container failed".into());
         }
 
-        Ok(Pod { id, killed: false })
+        Ok(Pod { id, killed: Arc::new(Mutex::new(false)) })
     }
 
     pub fn execute(&mut self, language: &str, content: &str) -> Result<ExecResult, String> {
-        let exited = Arc::new(AtomicBool::new(false));
-
-        let exited_th = exited.clone();
+        let killed_th = self.killed.clone();
         let id_th = self.id.clone();
         thread::spawn(move || {
             for _ in 0..3 {
                 thread::sleep(time::Duration::from_millis(1000));
-                if exited_th.as_ref().load(Ordering::Relaxed) {
+                if *killed_th.lock().unwrap() {
                     break;
                 }
+            }
+
+            let mut killed_lock = killed_th.lock().unwrap();
+            if *killed_lock {
+                return;
             }
 
             let output = Command::new("podman")
@@ -93,6 +95,8 @@ impl Pod {
                     return;
                 }
             }
+
+            *killed_lock = true;
         });
 
         let child = Command::new("podman")
@@ -122,29 +126,6 @@ impl Pod {
             Err(err) => return Err(format!("Running program failed: {}", err)),
         };
 
-        let child = Command::new("podman")
-            .arg("exec")
-            .arg("-i")
-            .arg(&self.id)
-            .arg("./scripts/get-files.sh")
-            .arg(language)
-            .stdin(Stdio::null())
-            .stdout(Stdio::piped())
-            .stderr(Stdio::inherit())
-            .spawn();
-        let child = match child {
-            Ok(child) => child,
-            Err(err) => return Err(format!("Getting files failed: {}", err)),
-        };
-
-        let tar_output = match child.wait_with_output() {
-            Ok(output) => output,
-            Err(err) => return Err(format!("Getting files failed: {}", err)),
-        };
-
-        exited.as_ref().store(true, Ordering::Relaxed);
-        self.killed = true;
-
         let mut errmsg: Option<String> = None;
         {
             let msg = String::from_utf8_lossy(&output.stderr).trim_end().to_string();
@@ -160,6 +141,38 @@ impl Pod {
                 outmsg = Some(msg);
             }
         }
+
+        let killed_lock = self.killed.lock().unwrap();
+        if *killed_lock {
+            return Ok(ExecResult {
+                stdout: outmsg,
+                stderr: errmsg,
+                status: output.status,
+                files: None,
+            })
+        }
+
+        let child = Command::new("podman")
+            .arg("exec")
+            .arg("-i")
+            .arg(&self.id)
+            .arg("./scripts/get-files.sh")
+            .arg(language)
+            .stdin(Stdio::null())
+            .stdout(Stdio::piped())
+            .stderr(Stdio::inherit())
+            .spawn();
+        let child = match child {
+            Ok(child) => child,
+            Err(err) => return Err(format!("Getting files failed: {}", err)),
+        };
+
+        drop(killed_lock);
+
+        let tar_output = match child.wait_with_output() {
+            Ok(output) => output,
+            Err(err) => return Err(format!("Getting files failed: {}", err)),
+        };
 
         let files = if tar_output.stdout.len() > 0 && tar_output.status.success() {
             Some(Arc::new(Mutex::new(Archive::new(Cursor::new(tar_output.stdout)))))
@@ -178,7 +191,8 @@ impl Pod {
 
 impl Drop for Pod {
     fn drop(&mut self) {
-        if !self.killed {
+        let mut killed_lock = self.killed.lock().unwrap();
+        if !*killed_lock {
             let output = Command::new("podman")
                 .arg("container")
                 .arg("kill")
@@ -192,6 +206,8 @@ impl Drop for Pod {
                     return;
                 }
             }
+
+            *killed_lock = true;
         }
     }
 }

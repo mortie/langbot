@@ -131,7 +131,7 @@ fn create_embed_from_result(output: &ExecResult, embed: &mut CreateEmbed) {
 }
 
 fn create_attachments(output: &ExecResult) -> Vec<AttachmentType> {
-    const MAX_SIZE: u64 = 5_000_000; // 5 MiB
+    const MAX_SIZE: u64 = 500 * 1024; // 500kiB
     let mut files = match &output.files {
         Some(files) => files.lock().unwrap(),
         None => return Vec::new(),
