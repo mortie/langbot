@@ -1,2 +1,2 @@
 cat >input.py
-exec python3 input.py
+cd wd && exec python3 ../input.py

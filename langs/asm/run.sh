@@ -1,3 +1,3 @@
 cat >input.s
 gcc -static -o input input.s
-exec ./input
+cd wd && exec ../input

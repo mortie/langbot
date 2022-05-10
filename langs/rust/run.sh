@@ -1,3 +1,3 @@
 cat >input.rs
 rustc -o input input.rs
-exec ./input
+cd wd && exec ../input

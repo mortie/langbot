@@ -1,2 +1,2 @@
 cat >input.js
-exec node input.js
+cd wd && exec node ../input.js

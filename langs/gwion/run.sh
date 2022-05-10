@@ -1,5 +1,4 @@
 cat >input.gw
-mkdir -p wd # TODO: Remove this when add-file-upload is merged
 cd wd && ../bin/gwion -p../.gwplug -dSndfile ../input.gw
 
 if [ -f gwion.wav ] && [ "$(du gwion.wav | cut -f1)" -gt 4 ]; then

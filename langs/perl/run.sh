@@ -1,2 +1,2 @@
 cat >input.pl
-exec perl input.pl
+cd wd && exec perl ../input.pl
