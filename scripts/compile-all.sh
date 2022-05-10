@@ -13,6 +13,7 @@ langs='
 	egel
 	fortran
 	gilia
+	gwion
 	haskell
 	hook
 	javascript
