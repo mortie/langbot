@@ -9,6 +9,7 @@ edition = "2021"
 regex = "1.5"
 lazy_static = "1.4"
 lru = "0.7"
+tar = "0.4"
 
 [dependencies.serenity]
 version = "0.11"

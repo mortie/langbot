@@ -2,9 +2,13 @@ use std::io::Write;
 use std::process::{Command, ExitStatus, Stdio};
 use std::sync::atomic::{AtomicBool, Ordering};
 use std::sync::mpsc;
-use std::sync::Arc;
+use std::sync::{Arc, Mutex};
 use std::thread;
 use std::time;
+use std::io::Cursor;
+use tar;
+
+type Archive = tar::Archive<Cursor<Vec<u8>>>;
 
 pub struct Pod {
     id: String,
@@ -15,6 +19,7 @@ pub struct ExecResult {
     pub stdout: Option<String>,
     pub stderr: Option<String>,
     pub status: ExitStatus,
+    pub files: Option<Arc<Mutex<Archive>>>,
 }
 
 impl Pod {
@@ -117,6 +122,26 @@ impl Pod {
             Err(err) => return Err(format!("Running program failed: {}", err)),
         };
 
+        let child = Command::new("podman")
+            .arg("exec")
+            .arg("-i")
+            .arg(&self.id)
+            .arg("./scripts/get-files.sh")
+            .arg(language)
+            .stdin(Stdio::null())
+            .stdout(Stdio::piped())
+            .stderr(Stdio::inherit())
+            .spawn();
+        let child = match child {
+            Ok(child) => child,
+            Err(err) => return Err(format!("Getting files failed: {}", err)),
+        };
+
+        let tar_output = match child.wait_with_output() {
+            Ok(output) => output,
+            Err(err) => return Err(format!("Getting files failed: {}", err)),
+        };
+
         exited.as_ref().store(true, Ordering::Relaxed);
         self.killed = true;
 
@@ -136,10 +161,17 @@ impl Pod {
             }
         }
 
+        let files = if tar_output.stdout.len() > 0 && tar_output.status.success() {
+            Some(Arc::new(Mutex::new(Archive::new(Cursor::new(tar_output.stdout)))))
+        } else {
+            None
+        };
+
         Ok(ExecResult {
             stdout: outmsg,
             stderr: errmsg,
             status: output.status,
+            files,
         })
     }
 }

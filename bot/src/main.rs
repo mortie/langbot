@@ -3,19 +3,20 @@ mod podmanager;
 use std::env;
 use std::fs;
 use std::sync::{Arc, Mutex};
+use std::io::Read;
+use std::borrow::Cow;
 
 use lazy_static::lazy_static;
 use lru::LruCache;
 use podmanager::{ExecResult, PodManager};
 use regex::{Regex, RegexBuilder};
 use serenity::async_trait;
-use serenity::builder::CreateEmbed;
-use serenity::model::channel::Message;
+use serenity::builder::{CreateEmbed, CreateMessage};
+use serenity::model::channel::{Message, MessageReference, AttachmentType};
 use serenity::model::event::MessageUpdateEvent;
 use serenity::model::gateway::Ready;
 use serenity::model::id::{ChannelId, MessageId};
 use serenity::model::user::CurrentUser;
-use serenity::model::channel::MessageReference;
 use serenity::prelude::*;
 use serenity::utils::Color;
 
@@ -95,7 +96,7 @@ struct Handler {
     responses: Mutex<LruCache<(ChannelId, MessageId), (ChannelId, MessageId)>>,
 }
 
-fn create_embed_from_result(output: ExecResult, embed: &mut CreateEmbed) {
+fn create_embed_from_result(output: &ExecResult, embed: &mut CreateEmbed) {
     if !output.status.success() {
         let code = match output.status.code() {
             Some(code) => match exit_code_to_desc(code) {
@@ -126,6 +127,68 @@ fn create_embed_from_result(output: ExecResult, embed: &mut CreateEmbed) {
             format!("```ansi\n{}\n```", zws_encode(truncate_string(stderr))),
             false,
         );
+    }
+}
+
+fn append_files_from_result<'a, 'b>(output: &'a ExecResult, m: &mut CreateMessage<'b>) {
+    const MAX_SIZE: u64 = 5_000_000; // 5 MiB
+    let mut files = match &output.files {
+        Some(files) => files.lock().unwrap(),
+        None => return,
+    };
+
+    let entries = match files.entries() {
+        Ok(entries) => entries,
+        Err(err) => {
+            eprintln!("Read files error: {}", err);
+            return;
+        }
+    };
+
+    let mut total_size = 0;
+    for ent in entries {
+        let mut ent = match ent {
+            Ok(ent) => ent,
+            Err(err) => {
+                eprintln!("Read files error: {}", err);
+                return;
+            }
+        };
+
+        let entsize = ent.size();
+        if entsize == 0 {
+            continue;
+        }
+
+        total_size += entsize;
+        if total_size > MAX_SIZE {
+            eprintln!("Files too large!");
+            return;
+        }
+
+        let path = match ent.path() {
+            Ok(path) => path.into_owned().to_string_lossy().to_string(),
+            Err(err) => {
+                eprintln!("Invalid file name: {}", err);
+                return;
+            }
+        };
+
+        let mut buf: Vec<u8> = Vec::new();
+        buf.resize(entsize as usize, 0u8);
+        let size = match ent.read(buf.as_mut_slice()) {
+            Ok(size) => size,
+            Err(err) => {
+                eprintln!("Invalid read: {}", err);
+                return;
+            }
+        };
+        buf.truncate(size); // In case we read less than what it said
+
+        m.add_file(AttachmentType::Bytes{
+            data: Cow::Owned(buf),
+            filename: path,
+        });
     }
 }
 
@@ -268,7 +331,7 @@ impl EventHandler for Handler {
         let resp = response_channel
             .edit_message(&ctx.http, response_id, |edit| {
                 edit.embed(|embed| {
-                    create_embed_from_result(output, embed);
+                    create_embed_from_result(&output, embed);
                     embed
                 })
             })
@@ -328,9 +391,11 @@ impl EventHandler for Handler {
                     a.empty_parse()
                 });
                 m.embed(|embed| {
-                    create_embed_from_result(output, embed);
+                    create_embed_from_result(&output, embed);
                     embed
-                })
+                });
+                append_files_from_result(&output, m);
+                m
             })
             .await;
         match resp {
