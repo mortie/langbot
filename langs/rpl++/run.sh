@@ -1,2 +1,2 @@
 cat >input.rpl
-exec node ./rpl input.rpl
+cd wd && exec node ../rpl ../input.rpl

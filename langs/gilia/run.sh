@@ -1,2 +1,2 @@
 cat >input.g
-exec ./gilia input.g
+cd wd && exec ../gilia ../input.g

@@ -11,12 +11,6 @@ fi
 topdir="$PWD"
 deploydir="$topdir/deploy/$lang"
 
-if ! [ -f "$deploydir/.done" ]; then
-	echo "Language $lang isn't deployed" >&2
-	exit 1
+if [ -d "$deploydir/wd" ]; then
+	(cd "$deploydir/wd" && tar c .)
 fi
-
-cd "$deploydir"
-rm -rf wd
-mkdir -p wd
-exec bash -euo pipefail run.sh

@@ -1,2 +1,2 @@
 cat >input.rpl
-exec ./trpl input.rpl
+cd wd && exec ../trpl ../input.rpl

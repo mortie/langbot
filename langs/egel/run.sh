@@ -1,2 +1,2 @@
 cat >input.eg
-exec ./bin/egel input.eg
+cd wd && exec ../bin/egel ../input.eg

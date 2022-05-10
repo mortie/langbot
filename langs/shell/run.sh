@@ -1,2 +1,2 @@
 cat >input.sh
-exec bash input.sh
+cd wd && exec bash ../input.sh
