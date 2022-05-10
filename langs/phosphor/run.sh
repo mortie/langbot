@@ -17,4 +17,4 @@ fi
 
 # Execute the programme:
 cd ..
-exec ./input
+cd wd && exec ../input

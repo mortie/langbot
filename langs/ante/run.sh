@@ -1,2 +1,3 @@
 cat >input.ante
-XDG_CONFIG_HOME="$PWD/.config" exec ./ante --run input.ante
+export XDG_CONFIG_HOME="$PWD/.config"
+cd wd && exec ../ante --run input.ante

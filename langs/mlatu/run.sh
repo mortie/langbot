@@ -1,1 +1,1 @@
-exec ./mlatu-runner
+cd wd && exec ../mlatu-runner

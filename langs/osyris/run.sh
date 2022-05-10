@@ -1,2 +1,2 @@
 cat >input.os
-exec ./osyris input.os
+cd wd && exec ../osyris ../input.os
