@@ -17,7 +17,7 @@ done
 wait
 
 failed=0
-for lang in $langs; do
+for lang in $(ls langs); do
 	if ! [ -f "deploy/$lang/.done" ]; then
 		echo "Language $lang didn't get deployed!" >&2
 		failed=1
