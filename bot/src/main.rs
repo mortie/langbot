@@ -21,14 +21,14 @@ use serenity::utils::Color;
 
 lazy_static! {
     static ref MULTILINE_CODE_RX: Regex = {
-        let pattern = r"!(\S+)\s+```\S*\s*(.*?)```";
+        let pattern = r"!([a-zA-Z][a-zA-Z0-9+_]*)\s+```\S*\s*(.*?)```";
         RegexBuilder::new(pattern)
             .dot_matches_new_line(true)
             .build()
             .unwrap()
     };
     static ref INLINE_CODE_RX: Regex = {
-        let pattern = r"!(\S+)\s+`(.*?)`";
+        let pattern = r"!([a-zA-Z][a-zA-Z0-9+_]*)\s+`(.*?)`";
         Regex::new(pattern).unwrap()
     };
 }
