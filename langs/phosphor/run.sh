@@ -8,13 +8,13 @@ fi
 
 # Compile the code:
 cd PhosphorCompiler
-node bin/main.js -t linuxAmd64 -s ../PhosphorStandardLibrary ../input.ph ../output
+node bin/main.js -t linuxAmd64 -s ../PhosphorStandardLibrary ../input.ph ../input
 
-if [ ! -f ../output ]; then
-	# If no output exists, the compilation did fail and we need to exit with a non-zero exit code:
+if [ ! -f ../input ]; then
+	# If no binary exists, the compilation did fail and we need to exit with a non-zero exit code:
 	exit 1
 fi
 
 # Execute the programme:
 cd ..
-exec ./output
+exec ./input

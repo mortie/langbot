@@ -1,3 +1,3 @@
 cat > input.cc
-g++ -std=c++2a -o output input.cc
-exec ./output
+g++ -std=c++2a -o input input.cc
+exec ./input
