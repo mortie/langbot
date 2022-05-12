@@ -1,5 +1,10 @@
 cat >input.gw
-cd wd && ../bin/gwion -p../.gwplug -dSndfile ../input.gw
+cd wd && ../bin/gwion -p../.gwplug -dSndfile ../input.gw 2>../stderr.log
+if [ -s ../stderr.log ]; then
+	cat ../stderr.log >&2
+	rm -f gwion.wav
+	exit 1
+fi
 
 find . -type f -name '*.wav' | while read -r wavf; do
 	if [ "$(du "$wavf" | cut -f1)" -gt 4 ]; then
