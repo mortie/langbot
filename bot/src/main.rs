@@ -135,7 +135,7 @@ fn is_output_interesting(output: &ExecResult) -> bool {
 }
 
 fn create_attachments(output: &ExecResult) -> Vec<AttachmentType> {
-    const MAX_SIZE: u64 = 500 * 1024; // 500kiB
+    const MAX_SIZE: u64 = 1024 * 1024; // 1MiB
     let mut files = match &output.files {
         Some(files) => files.lock().unwrap(),
         None => return Vec::new(),
