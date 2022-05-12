@@ -1,11 +1,10 @@
 git clone https://github.com/Gwion/Gwion.git -b dev
 cd Gwion
-git checkout 375fc2720a064801856a82d6339e05bca466b5d1
+git checkout dfbd2753b29346712327075fac2579804ac52a6d
 git submodule update --recursive --init
 
 find . -name soundpipe.h
 
-mkdir -p $DEPLOYDIR/bin $DEPLOYDIR/include $DEPLOYDIR/lib
 make -j8 GWPLUG_DIR="$DEPLOYDIR/.gwplug"
 make install PREFIX=$DEPLOYDIR
 
@@ -21,6 +20,10 @@ Modules
 Std
 Tuple
 Vecx
+Sporth
+Stk
+FMSynth
+BMI
 EOF
 AUTO_INSTALL_DEPS=1 make
 
