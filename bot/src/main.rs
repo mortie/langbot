@@ -344,6 +344,8 @@ impl EventHandler for Handler {
                         create_embed_from_result(&output, embed);
                         embed
                     });
+                } else {
+                    edit.set_embeds(Vec::new());
                 }
                 for attachment in attachments {
                     edit.attachment(attachment);
