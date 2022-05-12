@@ -130,6 +130,10 @@ fn create_embed_from_result(output: &ExecResult, embed: &mut CreateEmbed) {
     }
 }
 
+fn is_output_interesting(output: &ExecResult) -> bool {
+    return !output.status.success() || output.stdout.is_some() || output.stderr.is_some();
+}
+
 fn create_attachments(output: &ExecResult) -> Vec<AttachmentType> {
     const MAX_SIZE: u64 = 500 * 1024; // 500kiB
     let mut files = match &output.files {
@@ -334,11 +338,14 @@ impl EventHandler for Handler {
 
         let resp = response_channel
             .edit_message(&ctx.http, response_id, |edit| {
-                edit.embed(|embed| {
-                    create_embed_from_result(&output, embed);
-                    embed
-                });
-                for attachment in create_attachments(&output) {
+                let attachments = create_attachments(&output);
+                if attachments.is_empty() || is_output_interesting(&output) {
+                    edit.embed(|embed| {
+                        create_embed_from_result(&output, embed);
+                        embed
+                    });
+                }
+                for attachment in attachments {
                     edit.attachment(attachment);
                 }
                 edit
@@ -398,11 +405,14 @@ impl EventHandler for Handler {
                 m.allowed_mentions(|a| {
                     a.empty_parse()
                 });
-                m.embed(|embed| {
-                    create_embed_from_result(&output, embed);
-                    embed
-                });
-                for attachment in create_attachments(&output) {
+                let attachments = create_attachments(&output);
+                if attachments.is_empty() || is_output_interesting(&output) {
+                    m.embed(|embed| {
+                        create_embed_from_result(&output, embed);
+                        embed
+                    });
+                }
+                for attachment in attachments {
                     m.add_file(attachment);
                 }
                 m
