@@ -1,2 +1,2 @@
-cat >input.hk
-exec ./lua input.hk
+cat >input.lua
+exec ./luajit input.lua
