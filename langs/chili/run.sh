@@ -1,2 +1,2 @@
-cat >input.os
-exec ./chilic run input.os
+cat >main.chili
+exec ./chilic run main.chili
