@@ -1,2 +1,3 @@
-cat >main.chili
-exec ./chilic run main.chili
+cat >input.chili
+./chilic build input.chili
+cd wd && exec ../input
