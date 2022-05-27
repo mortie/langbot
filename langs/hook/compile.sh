@@ -1,6 +1,6 @@
 git clone https://github.com/fabiosvm/hook-lang.git
 cd hook-lang
-git checkout a1cdd1d248ace61d3fb6fddfaccf87fc482cf742
+git checkout 15cf5da8d0d7bbc51b792e97b4c0b11a2df20a06
 
 cmake -B build -DCMAKE_BUILD_TYPE=Release
 cmake --build build
