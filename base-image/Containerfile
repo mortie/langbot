@@ -1,7 +1,6 @@
 FROM ubuntu:22.04
 
-RUN apt-get update && apt-get upgrade -y
-RUN apt-get install -y \
+RUN apt-get update && apt-get upgrade -y && apt-get install -y \
 	git make gcc g++ rustc cargo cmake meson pkg-config \
 	curl flex bison clang python3 racket \
 	lsb-release binutils nasm \
@@ -9,7 +8,8 @@ RUN apt-get install -y \
 	libfmt-dev zlib1g-dev libblocksruntime-dev libgmp-dev libreadline-dev \
 	libnuma-dev libssl-dev gfortran ruby \
 	fortune cowsay xxd \
-	libsqlite3-dev libcurl4-openssl-dev libhiredis-dev
+	libsqlite3-dev libcurl4-openssl-dev libhiredis-dev \
+	gettext ffmpeg luajit ocaml opam libmysqlclient-dev
 
 # The games path is used by fortune and cowsay:
 ENV PATH "${PATH}:/usr/games"
@@ -41,6 +41,6 @@ RUN raco setup --doc-index
 # via the !racket language.
 # Checksum retrieved from: https://pkgs.racket-lang.org/package/barrel
 run raco pkg install --batch --deps search-auto \
-	--checksum 37f044d625a61b0152d39ea1d302af4165ef1afc barrel
+	--checksum 8d7121a59f2888d85d4cb183ab5be60bcc67417e barrel
 
 USER root
