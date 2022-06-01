@@ -37,4 +37,10 @@ USER runner
 RUN cabal update
 RUN raco setup --doc-index
 
+# Barrel is a racket language, so installing it here makes it available
+# via the !racket language.
+# Checksum retrieved from: https://pkgs.racket-lang.org/package/barrel
+run raco pkg install --batch --deps search-auto \
+    --checksum 8d7121a59f2888d85d4cb183ab5be60bcc67417e barrel
+
 USER root
