@@ -1,4 +1,4 @@
-FROM ghcr.io/mortie/langbot-base:1.1.0
+FROM ghcr.io/mortie/langbot-base:1.2.0
 
 # Add 'apt-get install -y <packages>' to this line to install additional packages
 RUN apt-get update && apt-get upgrade -y

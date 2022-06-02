@@ -1,4 +1,4 @@
-TAG=ghcr.io/mortie/langbot-base:1.1.0
+TAG=ghcr.io/mortie/langbot-base:1.2.0
 
 .PHONY: build
 build:

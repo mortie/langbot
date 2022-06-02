@@ -41,6 +41,6 @@ RUN raco setup --doc-index
 # via the !racket language.
 # Checksum retrieved from: https://pkgs.racket-lang.org/package/barrel
 run raco pkg install --batch --deps search-auto \
-	--checksum 8d7121a59f2888d85d4cb183ab5be60bcc67417e barrel
+	--checksum 106b09a265cc030a13bf86178a9d75cf26b586a2 barrel
 
 USER root
