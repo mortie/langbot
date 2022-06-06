@@ -7,7 +7,7 @@ RUN apt-get update && apt-get upgrade -y && apt-get install -y \
 	llvm-12 libclang-common-12-dev llvm-13 libclang-common-13-dev \
 	libfmt-dev zlib1g-dev libblocksruntime-dev libgmp-dev libreadline-dev \
 	libnuma-dev libssl-dev gfortran ruby \
-	fortune cowsay xxd swi-prolog \
+	fortune cowsay xxd \
 	libsqlite3-dev libcurl4-openssl-dev libhiredis-dev \
 	gettext ffmpeg luajit ocaml opam libmysqlclient-dev
 
