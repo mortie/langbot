@@ -1,3 +1,3 @@
 cat >input.chili
-./chilic build input.chili
+./chili build input.chili
 cd wd && exec ../input

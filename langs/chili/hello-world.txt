@@ -1,5 +1,5 @@
-use std.fmt.println;
+let { println } = @import("std/fmt");
 
 let main = fn() {
   println("Hello World");
-}
+};
