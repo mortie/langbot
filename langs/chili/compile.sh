@@ -1,6 +1,6 @@
 git clone https://github.com/r0nsha/chili-lang.git --recurse-submodules chili
 cd chili
-git checkout 5306da368395279ec9620f178f920fd250d5bc37
+git checkout 803dc1d4ae1fcd983dd641aae259efbbac4ba74c
 
 cargo build --release
 cp target/release/chili "$DEPLOYDIR"
