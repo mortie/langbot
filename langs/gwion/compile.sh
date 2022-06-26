@@ -1,6 +1,6 @@
 git clone https://github.com/Gwion/Gwion.git -b dev
 cd Gwion
-git checkout dfbd2753b29346712327075fac2579804ac52a6d
+git checkout ed766efbb12f27c113f2581956796394f64db46c
 git submodule update --recursive --init
 
 find . -name soundpipe.h
