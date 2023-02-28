@@ -1,0 +1,4 @@
+def hello(whom: str) -> str:
+    return "Hello, " + whom + "!"
+
+reveal_type(hello)
